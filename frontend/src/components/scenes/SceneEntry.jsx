@@ -20,7 +20,7 @@ export const SceneEntry = () => {
       className="min-h-screen flex items-center justify-center relative"
     >
       <motion.div 
-        className="max-w-4xl mx-auto px-6 text-center"
+        className="max-w-4xl mx-auto px-4 sm:px-6 text-center pt-16 sm:pt-0"
         style={{ opacity, y, scale }}
       >
         {/* Main headline */}
