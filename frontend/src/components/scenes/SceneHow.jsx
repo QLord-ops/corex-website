@@ -35,7 +35,7 @@ const HowStep = ({ step, index, total }) => {
   return (
     <motion.div
       ref={ref}
-      className="min-h-[70vh] flex items-center justify-center px-6"
+      className="min-h-[60vh] sm:min-h-[70vh] flex items-center justify-center px-4 sm:px-6"
     >
       <motion.div
         className="max-w-2xl w-full"
@@ -138,7 +138,7 @@ export const SceneHow = () => {
   return (
     <section className="relative">
       {/* Section intro */}
-      <div className="min-h-[40vh] flex items-end justify-center pb-12 px-6">
+      <div className="min-h-[30vh] sm:min-h-[40vh] flex items-end justify-center pb-8 sm:pb-12 px-4 sm:px-6">
         <AnimatedText className="text-center">
           <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground block mb-4">
             The approach
