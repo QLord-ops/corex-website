@@ -17,7 +17,7 @@ export const SceneEntry = () => {
   return (
     <section 
       ref={sectionRef}
-      className="min-h-screen flex items-center justify-center relative"
+      className="min-h-[100dvh] flex items-center justify-center relative"
     >
       <motion.div 
         className="max-w-4xl mx-auto px-4 sm:px-6 text-center pt-16 sm:pt-0"
