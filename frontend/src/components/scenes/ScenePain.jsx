@@ -12,28 +12,28 @@ const PainStatement = ({ text, index }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { 
     once: true, 
-    margin: "-20% 0px -20% 0px" 
+    margin: "-30% 0px -30% 0px" 
   });
   
   return (
     <motion.div
       ref={ref}
-      className="min-h-[50vh] sm:min-h-[60vh] flex items-center justify-center px-4 sm:px-6"
+      className="min-h-[70vh] sm:min-h-[80vh] flex items-center justify-center px-4 sm:px-6"
       initial={{ opacity: 0 }}
       animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-      transition={{ duration: 1, delay: 0.2 }}
+      transition={{ duration: 1.8, delay: 0.4 }}
     >
       <motion.div
-        initial={{ opacity: 0, y: 40, filter: 'blur(10px)' }}
+        initial={{ opacity: 0, y: 60, filter: 'blur(12px)' }}
         animate={isInView ? { 
           opacity: 1, 
           y: 0, 
           filter: 'blur(0px)'
         } : {}}
         transition={{ 
-          duration: 0.8, 
-          delay: 0.3,
-          ease: [0.22, 1, 0.36, 1]
+          duration: 1.4, 
+          delay: 0.6,
+          ease: [0.16, 1, 0.3, 1]
         }}
         className="text-center"
       >
@@ -49,7 +49,7 @@ const PainStatement = ({ text, index }) => {
           className="mt-8 flex justify-center gap-1"
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 1.2, duration: 0.8 }}
         >
           {[...Array(3)].map((_, i) => (
             <motion.div
@@ -58,8 +58,8 @@ const PainStatement = ({ text, index }) => {
               initial={{ scaleX: 0 }}
               animate={isInView ? { scaleX: 1 } : {}}
               transition={{ 
-                delay: 0.7 + i * 0.1,
-                duration: 0.4
+                delay: 1.4 + i * 0.15,
+                duration: 0.6
               }}
               style={{ transformOrigin: 'left' }}
             />
@@ -94,13 +94,13 @@ export const ScenePain = () => {
       ))}
       
       {/* Transition visual */}
-      <div className="h-[20vh] flex items-center justify-center">
+      <div className="h-[30vh] flex items-center justify-center">
         <motion.div
           className="w-px h-full bg-gradient-to-b from-destructive/30 via-primary/50 to-transparent"
           initial={{ scaleY: 0 }}
           whileInView={{ scaleY: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 1.5 }}
+          transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
           style={{ transformOrigin: 'top' }}
         />
       </div>
