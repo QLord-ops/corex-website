@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { AnimatedText, AnimatedLine, StaggeredText } from '../effects/AnimatedText';
+import { Button } from '../ui/button';
 
 export const SceneEntry = () => {
   const sectionRef = useRef(null);
@@ -14,17 +15,24 @@ export const SceneEntry = () => {
   const y = useTransform(scrollYProgress, [0, 1], [0, -100]);
   const scale = useTransform(scrollYProgress, [0, 1], [1, 0.95]);
   
+  const scrollToExplore = () => {
+    window.scrollTo({
+      top: window.innerHeight * 1.2,
+      behavior: 'smooth'
+    });
+  };
+  
   return (
     <section 
       ref={sectionRef}
       className="min-h-[100dvh] flex items-center justify-center relative"
     >
       <motion.div 
-        className="max-w-4xl mx-auto px-4 sm:px-6 text-center pt-16 sm:pt-0"
+        className="max-w-4xl mx-auto px-4 sm:px-6 text-center pt-20 sm:pt-0"
         style={{ opacity, y, scale }}
       >
         {/* Main headline */}
-        <div className="mb-12">
+        <div className="mb-10 sm:mb-12">
           <StaggeredText 
             text="Turn chaos into a working system."
             className="text-scene-hero text-glow mb-8"
@@ -44,7 +52,7 @@ export const SceneEntry = () => {
         />
         
         <AnimatedText delay={1}>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 text-scene-small">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-12 text-scene-small mb-12">
             <span className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse-subtle" />
               Clear deadlines
@@ -60,30 +68,25 @@ export const SceneEntry = () => {
           </div>
         </AnimatedText>
         
-        {/* Scroll indicator */}
-        <AnimatedText delay={1.5} className="mt-20">
-          <motion.div 
-            className="flex flex-col items-center gap-2 text-muted-foreground"
-            animate={{ y: [0, 8, 0] }}
-            transition={{ 
-              duration: 2, 
-              repeat: Infinity, 
-              ease: "easeInOut" 
-            }}
+        {/* Primary CTA Button - Calm and minimal */}
+        <AnimatedText delay={1.2}>
+          <button
+            onClick={scrollToExplore}
+            className="inline-flex items-center gap-3 px-6 py-3 text-sm text-muted-foreground hover:text-foreground border border-border/50 hover:border-border rounded-sm transition-colors duration-500 group"
           >
-            <span className="text-xs uppercase tracking-widest">Scroll to enter</span>
+            <span>Explore the system</span>
             <svg 
-              width="20" 
-              height="20" 
+              width="16" 
+              height="16" 
               viewBox="0 0 24 24" 
               fill="none" 
               stroke="currentColor" 
               strokeWidth="1.5"
-              className="opacity-50"
+              className="opacity-50 group-hover:opacity-80 transition-opacity"
             >
               <path d="M12 5v14M5 12l7 7 7-7"/>
             </svg>
-          </motion.div>
+          </button>
         </AnimatedText>
       </motion.div>
     </section>
