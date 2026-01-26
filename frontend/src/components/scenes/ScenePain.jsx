@@ -18,7 +18,7 @@ const PainStatement = ({ text, index }) => {
   return (
     <motion.div
       ref={ref}
-      className="min-h-[60vh] flex items-center justify-center px-6"
+      className="min-h-[50vh] sm:min-h-[60vh] flex items-center justify-center px-4 sm:px-6"
       initial={{ opacity: 0 }}
       animate={isInView ? { opacity: 1 } : { opacity: 0 }}
       transition={{ duration: 1, delay: 0.2 }}
@@ -76,7 +76,7 @@ export const ScenePain = () => {
   return (
     <section ref={sectionRef} className="relative">
       {/* Section intro */}
-      <div className="min-h-[40vh] flex items-end justify-center pb-12 px-6">
+      <div className="min-h-[30vh] sm:min-h-[40vh] flex items-end justify-center pb-8 sm:pb-12 px-4 sm:px-6">
         <AnimatedText>
           <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
             The reality
