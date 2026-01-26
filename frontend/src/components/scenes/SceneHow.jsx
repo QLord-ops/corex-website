@@ -29,31 +29,30 @@ const HowStep = ({ step, index, total }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { 
     once: true, 
-    margin: "-15% 0px -15% 0px" 
+    margin: "-10% 0px -10% 0px" 
   });
   
   return (
     <motion.div
       ref={ref}
-      className="min-h-[60vh] sm:min-h-[70vh] flex items-center justify-center px-4 sm:px-6"
+      className="min-h-[55vh] sm:min-h-[60vh] flex items-center justify-center px-4 sm:px-6"
     >
       <motion.div
         className="max-w-2xl w-full"
         initial={{ opacity: 0 }}
         animate={isInView ? { opacity: 1 } : {}}
-        transition={{ duration: 0.8 }}
+        transition={{ duration: 0.5 }}
       >
         {/* Step indicator and line */}
         <div className="flex items-center gap-6 mb-8">
           <motion.div
             className="w-12 h-12 rounded-lg bg-secondary border border-border flex items-center justify-center"
-            initial={{ scale: 0, rotate: -10 }}
-            animate={isInView ? { scale: 1, rotate: 0 } : {}}
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={isInView ? { scale: 1, opacity: 1 } : {}}
             transition={{ 
-              duration: 0.5, 
-              delay: 0.2,
-              type: "spring",
-              stiffness: 200
+              duration: 0.4, 
+              delay: 0.1,
+              ease: [0.22, 1, 0.36, 1]
             }}
           >
             <svg 
@@ -73,7 +72,7 @@ const HowStep = ({ step, index, total }) => {
             className="flex-1 h-px bg-border"
             initial={{ scaleX: 0 }}
             animate={isInView ? { scaleX: 1 } : {}}
-            transition={{ duration: 0.8, delay: 0.3 }}
+            transition={{ duration: 0.5, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
             style={{ transformOrigin: 'left' }}
           />
           
@@ -81,7 +80,7 @@ const HowStep = ({ step, index, total }) => {
             className="text-sm text-muted-foreground font-medium"
             initial={{ opacity: 0 }}
             animate={isInView ? { opacity: 1 } : {}}
-            transition={{ delay: 0.6 }}
+            transition={{ delay: 0.3, duration: 0.3 }}
           >
             {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
           </motion.span>
@@ -90,11 +89,11 @@ const HowStep = ({ step, index, total }) => {
         {/* Main text */}
         <motion.h2
           className="text-scene-statement mb-4"
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ 
-            duration: 0.8, 
-            delay: 0.3,
+            duration: 0.5, 
+            delay: 0.2,
             ease: [0.22, 1, 0.36, 1]
           }}
         >
@@ -104,11 +103,11 @@ const HowStep = ({ step, index, total }) => {
         {/* Description */}
         <motion.p
           className="text-scene-small text-muted-foreground"
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ 
-            duration: 0.6, 
-            delay: 0.5,
+            duration: 0.4, 
+            delay: 0.3,
             ease: [0.22, 1, 0.36, 1]
           }}
         >
@@ -120,13 +119,13 @@ const HowStep = ({ step, index, total }) => {
           className="mt-8 h-0.5 bg-border rounded-full overflow-hidden"
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 0.35, duration: 0.3 }}
         >
           <motion.div
             className="h-full bg-primary"
             initial={{ width: '0%' }}
             animate={isInView ? { width: `${((index + 1) / total) * 100}%` } : {}}
-            transition={{ duration: 1, delay: 0.7, ease: "easeOut" }}
+            transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
           />
         </motion.div>
       </motion.div>
