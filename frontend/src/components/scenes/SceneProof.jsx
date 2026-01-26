@@ -58,7 +58,7 @@ export const SceneProof = () => {
   return (
     <section ref={sectionRef} className="relative">
       {/* Section intro */}
-      <div className="min-h-[40vh] flex items-end justify-center pb-12 px-6">
+      <div className="min-h-[30vh] sm:min-h-[40vh] flex items-end justify-center pb-8 sm:pb-12 px-4 sm:px-6">
         <AnimatedText className="text-center">
           <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground block mb-4">
             The results
@@ -70,7 +70,7 @@ export const SceneProof = () => {
       </div>
       
       {/* Stats grid */}
-      <div className="min-h-[60vh] flex items-center justify-center px-6">
+      <div className="min-h-[50vh] sm:min-h-[60vh] flex items-center justify-center px-4 sm:px-6">
         <div className="max-w-4xl w-full">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
             {stats.map((stat, index) => (
@@ -111,7 +111,7 @@ export const SceneProof = () => {
       {/* Transition statement */}
       <div 
         ref={transitionRef}
-        className="min-h-[50vh] flex items-center justify-center px-6"
+        className="min-h-[40vh] sm:min-h-[50vh] flex items-center justify-center px-4 sm:px-6"
       >
         <motion.div 
           className="max-w-3xl text-center"
