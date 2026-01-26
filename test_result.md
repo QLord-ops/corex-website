@@ -101,3 +101,139 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Test the scroll-driven digital experience at https://chaos-to-order-1.preview.emergentagent.com - a vertical scroll journey with 6 scenes including scroll animations, progress indicator, form validation, and mobile responsiveness"
+
+frontend:
+  - task: "Scene 1 - Entry Scene"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/scenes/SceneEntry.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "testing"
+        -comment: "Initial testing required - Scene 1 should show 'Turn chaos into a working system.' headline with supporting text and scroll indicator"
+
+  - task: "Scene 2 - Pain Points"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/scenes/ScenePain.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "testing"
+        -comment: "Initial testing required - Scene 2 should show 3 pain points: 'Projects stall.', 'No clear ownership.', 'Manual work kills growth.'"
+
+  - task: "Scene 3 - How Steps"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/scenes/SceneHow.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "testing"
+        -comment: "Initial testing required - Scene 3 should show 4 steps: Define system, Build what matters, Automate flow, Run and support"
+
+  - task: "Scene 4 - Proof Stats"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/scenes/SceneProof.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "testing"
+        -comment: "Initial testing required - Scene 4 should show stats (+38%, -42%, 2-6 weeks, 24h) + transition statement"
+
+  - task: "Scene 5 - Decision Statement"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/scenes/SceneDecision.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "testing"
+        -comment: "Initial testing required - Scene 5 should show 'No sales. No experiments. Just systems that work.'"
+
+  - task: "Scene 6 - Contact Form"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/scenes/SceneAction.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "testing"
+        -comment: "Initial testing required - Scene 6 should show contact form with name, email, message fields and validation"
+
+  - task: "Scroll Animations and Transitions"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/ScrollExperience.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "testing"
+        -comment: "Initial testing required - Scroll animations and transitions should work smoothly between scenes"
+
+  - task: "Progress Indicator"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/effects/ProgressIndicator.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "testing"
+        -comment: "Initial testing required - Progress indicator on right side should update as user scrolls through scenes"
+
+  - task: "Mobile Responsiveness"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/ScrollExperience.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "testing"
+        -comment: "Initial testing required - Test mobile responsiveness at 375px width"
+
+metadata:
+  created_by: "testing_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: true
+
+test_plan:
+  current_focus:
+    - "Scene 1 - Entry Scene"
+    - "Scene 2 - Pain Points"
+    - "Scene 3 - How Steps"
+    - "Scene 4 - Proof Stats"
+    - "Scene 5 - Decision Statement"
+    - "Scene 6 - Contact Form"
+    - "Scroll Animations and Transitions"
+    - "Progress Indicator"
+    - "Mobile Responsiveness"
+  stuck_tasks: []
+  test_all: true
+  test_priority: "sequential"
+
+agent_communication:
+    -agent: "testing"
+    -message: "Starting comprehensive testing of scroll-driven digital experience. Will test all 6 scenes, scroll animations, progress indicator, form validation, and mobile responsiveness using Playwright automation."
