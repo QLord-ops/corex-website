@@ -41,7 +41,7 @@ export const SceneAction = () => {
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         >
           <h2 className="text-scene-statement mb-4">
-            Let's bring order to your system.
+            Let&apos;s bring order to your system.
           </h2>
           <p className="text-scene-small text-muted-foreground">
             No forms, no funnels. Just a conversation.
@@ -133,7 +133,7 @@ export const SceneAction = () => {
               </motion.div>
               <h3 className="text-scene-body mb-2">Message received</h3>
               <p className="text-scene-small text-muted-foreground">
-                We'll be in touch within 24 hours.
+                We&apos;ll be in touch within 24 hours.
               </p>
               <Button 
                 variant="ghost" 
