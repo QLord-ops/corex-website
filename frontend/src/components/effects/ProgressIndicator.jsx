@@ -1,0 +1,54 @@
+import { motion, useTransform } from 'framer-motion';
+
+const sceneLabels = [
+  'Entry',
+  'Pain',
+  'How',
+  'Proof',
+  'Decision',
+  'Action'
+];
+
+export const ProgressIndicator = ({ progress, currentScene }) => {
+  const progressHeight = useTransform(progress, [0, 1], ['0%', '100%']);
+  
+  return (
+    <div className="fixed right-8 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col items-end gap-4">
+      {/* Progress line */}
+      <div className="absolute right-2 top-0 h-full w-px bg-border">
+        <motion.div 
+          className="absolute top-0 left-0 w-full bg-primary"
+          style={{ height: progressHeight }}
+        />
+      </div>
+      
+      {/* Scene indicators */}
+      {sceneLabels.map((label, index) => (
+        <motion.div
+          key={label}
+          className="flex items-center gap-3 relative z-10"
+          initial={{ opacity: 0.4 }}
+          animate={{ 
+            opacity: currentScene >= index ? 1 : 0.4,
+          }}
+          transition={{ duration: 0.6 }}
+        >
+          <span className={`text-xs uppercase tracking-widest transition-colors duration-600 ${
+            currentScene === index ? 'text-primary' : 'text-muted-foreground'
+          }`}>
+            {label}
+          </span>
+          <motion.div 
+            className={`w-2 h-2 rounded-full transition-colors duration-600 ${
+              currentScene >= index ? 'bg-primary' : 'bg-muted'
+            }`}
+            animate={{
+              scale: currentScene === index ? 1.5 : 1,
+            }}
+            transition={{ duration: 0.3 }}
+          />
+        </motion.div>
+      ))}
+    </div>
+  );
+};
