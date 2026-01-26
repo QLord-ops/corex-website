@@ -388,14 +388,14 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
           const opacity = node.getOpacity(currentProgress, system.time);
           const size = node.getSize(currentProgress);
           
-          // Soft glow around node
-          const glowSize = size * (3 + layer);
+          // Outer soft glow
+          const glowSize = size * (4 + layer * 1.5);
           const glowGradient = ctx.createRadialGradient(
             node.x, node.y, 0,
             node.x, node.y, glowSize
           );
-          glowGradient.addColorStop(0, `hsla(180, 25%, 45%, ${opacity * 0.3})`);
-          glowGradient.addColorStop(0.5, `hsla(180, 25%, 45%, ${opacity * 0.1})`);
+          glowGradient.addColorStop(0, `hsla(180, 28%, 48%, ${opacity * 0.35})`);
+          glowGradient.addColorStop(0.4, `hsla(180, 28%, 48%, ${opacity * 0.15})`);
           glowGradient.addColorStop(1, 'transparent');
           
           ctx.beginPath();
@@ -405,8 +405,14 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
           
           // Node core
           ctx.beginPath();
-          ctx.fillStyle = `hsla(180, 20%, 50%, ${opacity})`;
+          ctx.fillStyle = `hsla(180, 25%, 55%, ${opacity * 1.1})`;
           ctx.arc(node.x, node.y, size, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Bright center
+          ctx.beginPath();
+          ctx.fillStyle = `hsla(180, 20%, 70%, ${opacity * 0.8})`;
+          ctx.arc(node.x, node.y, size * 0.4, 0, Math.PI * 2);
           ctx.fill();
         });
         
