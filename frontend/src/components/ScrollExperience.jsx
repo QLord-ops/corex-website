@@ -8,6 +8,7 @@ import { SceneDecision } from './scenes/SceneDecision';
 import { SceneAction } from './scenes/SceneAction';
 import { LivingSystemBackground } from './effects/LivingSystemBackground';
 import { ProgressIndicator } from './effects/ProgressIndicator';
+import { Header } from './Header';
 
 export const ScrollExperience = () => {
   const containerRef = useRef(null);
@@ -86,6 +87,9 @@ export const ScrollExperience = () => {
       ref={containerRef}
       className="relative bg-background min-h-[600vh]"
     >
+      {/* Header with COREX branding and navigation */}
+      <Header />
+      
       {/* Fixed background layer - THE LIVING SYSTEM */}
       <div className="fixed inset-0 z-0">
         <LivingSystemBackground 
