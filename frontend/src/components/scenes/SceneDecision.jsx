@@ -22,7 +22,7 @@ export const SceneDecision = () => {
   return (
     <section 
       ref={sectionRef}
-      className="min-h-screen flex items-center justify-center relative px-6"
+      className="min-h-[100dvh] flex items-center justify-center relative px-4 sm:px-6"
     >
       <motion.div
         ref={contentRef}
