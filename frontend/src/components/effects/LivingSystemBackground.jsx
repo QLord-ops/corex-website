@@ -192,9 +192,9 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
     
     // Three depth layers
     const layers = [
-      { count: 30, parallax: 0.3, connectionThreshold: 220 },  // Far - more nodes, sparser connections
-      { count: 22, parallax: 0.6, connectionThreshold: 200 },  // Mid
-      { count: 14, parallax: 1.0, connectionThreshold: 180 }   // Near - fewer, denser connections
+      { count: 35, parallax: 0.3, connectionThreshold: 250 },  // Far - more nodes, sparser connections
+      { count: 25, parallax: 0.6, connectionThreshold: 220 },  // Mid
+      { count: 16, parallax: 1.0, connectionThreshold: 200 }   // Near - fewer, denser connections
     ];
     
     let nodeIndex = 0;
