@@ -6,7 +6,6 @@ export const GridBackground = ({ progress }) => {
   
   // Transform grid opacity based on scroll progress
   const gridOpacity = useTransform(progress, [0, 0.3, 0.7, 1], [0.15, 0.25, 0.3, 0.2]);
-  const dotOpacity = useTransform(progress, [0, 0.5, 1], [0.2, 0.35, 0.25]);
   
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -27,12 +26,22 @@ export const GridBackground = ({ progress }) => {
       const gridSize = 60;
       const dotSize = 1.5;
       
-      // Draw flowing grid dots
+      // Very slow breathing cycle - 45 seconds full cycle
+      const breathCycle = time * 0.14;
+      const breathValue = Math.sin(breathCycle) * 0.5 + 0.5; // 0 to 1
+      
+      // Subtle global breathing - affects overall intensity
+      const globalBreath = 0.85 + breathValue * 0.15; // 0.85 to 1.0
+      
+      // Draw flowing grid dots with breathing
       for (let x = 0; x < canvas.width + gridSize; x += gridSize) {
         for (let y = 0; y < canvas.height + gridSize; y += gridSize) {
-          const offsetX = Math.sin((y / gridSize + time * 0.5) * 0.3) * 2;
-          const offsetY = Math.cos((x / gridSize + time * 0.5) * 0.3) * 2;
+          // Very subtle position drift - almost imperceptible
+          const driftPhase = (x + y) * 0.001;
+          const offsetX = Math.sin((y / gridSize + time * 0.08) * 0.2 + driftPhase) * 1.5;
+          const offsetY = Math.cos((x / gridSize + time * 0.08) * 0.2 + driftPhase) * 1.5;
           
+          // Distance-based falloff from center
           const distance = Math.sqrt(
             Math.pow(x - canvas.width / 2, 2) + 
             Math.pow(y - canvas.height / 2, 2)
@@ -43,15 +52,23 @@ export const GridBackground = ({ progress }) => {
           );
           const falloff = 1 - (distance / maxDistance) * 0.6;
           
+          // Individual dot breathing - offset by position for organic feel
+          const dotBreathPhase = breathCycle + (x * 0.002) + (y * 0.003);
+          const dotBreath = Math.sin(dotBreathPhase) * 0.12 + 0.88; // 0.76 to 1.0
+          
+          const finalOpacity = 0.25 * falloff * globalBreath * dotBreath;
+          const finalSize = dotSize * falloff * (0.95 + dotBreath * 0.05);
+          
           ctx.beginPath();
-          ctx.arc(x + offsetX, y + offsetY, dotSize * falloff, 0, Math.PI * 2);
-          ctx.fillStyle = `hsla(180, 30%, 40%, ${0.3 * falloff})`;
+          ctx.arc(x + offsetX, y + offsetY, finalSize, 0, Math.PI * 2);
+          ctx.fillStyle = `hsla(180, 30%, 40%, ${finalOpacity})`;
           ctx.fill();
         }
       }
       
-      // Draw subtle connecting lines
-      ctx.strokeStyle = 'hsla(180, 20%, 30%, 0.08)';
+      // Draw subtle connecting lines with breathing
+      const lineBreath = 0.7 + breathValue * 0.3;
+      ctx.strokeStyle = `hsla(180, 20%, 30%, ${0.06 * lineBreath})`;
       ctx.lineWidth = 0.5;
       
       for (let x = 0; x < canvas.width; x += gridSize) {
@@ -68,7 +85,8 @@ export const GridBackground = ({ progress }) => {
         ctx.stroke();
       }
       
-      time += 0.01;
+      // Increment time slowly
+      time += 0.016;
       animationId = requestAnimationFrame(draw);
     };
     
