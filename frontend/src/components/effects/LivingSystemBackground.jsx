@@ -344,15 +344,15 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
               const otherOpacity = other.getOpacity(currentProgress, system.time);
               const avgOpacity = (nodeOpacity + otherOpacity) * 0.5;
               
-              // Connection line
+              // Connection line - more visible
               const gradient = ctx.createLinearGradient(node.x, node.y, other.x, other.y);
-              gradient.addColorStop(0, `hsla(185, 20%, 38%, ${avgOpacity * 0.35})`);
-              gradient.addColorStop(0.5, `hsla(185, 20%, 38%, ${avgOpacity * 0.5})`);
-              gradient.addColorStop(1, `hsla(185, 20%, 38%, ${avgOpacity * 0.35})`);
+              gradient.addColorStop(0, `hsla(185, 22%, 40%, ${avgOpacity * 0.5})`);
+              gradient.addColorStop(0.5, `hsla(185, 22%, 40%, ${avgOpacity * 0.7})`);
+              gradient.addColorStop(1, `hsla(185, 22%, 40%, ${avgOpacity * 0.5})`);
               
               ctx.beginPath();
               ctx.strokeStyle = gradient;
-              ctx.lineWidth = 0.4 + layer * 0.15;
+              ctx.lineWidth = 0.5 + layer * 0.2;
               ctx.moveTo(node.x, node.y);
               ctx.lineTo(other.x, other.y);
               ctx.stroke();
