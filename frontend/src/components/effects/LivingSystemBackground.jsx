@@ -1,110 +1,159 @@
 import { useRef, useEffect, useCallback } from 'react';
 
-// Color state based on narrative phase
+// Stronger, more distinguishable color states
 const getColorState = (progress) => {
-  // Entry (0-8%): Warm, tense - stressed system
+  // Entry (0-8%): Warm tension beginning - visible amber/rust
   if (progress < 0.08) {
     return {
-      hue: 25, // Amber/orange undertone
-      saturation: 22,
-      lightness: 42,
-      bgWarmth: 0.15, // Subtle warm tint to background
-      contrast: 1.0
+      // Node/line colors
+      hue: 28,
+      saturation: 35,
+      lightness: 45,
+      // Background tint
+      bgHue: 20,
+      bgSaturation: 18,
+      bgLightness: 6,
+      // Element visibility
+      nodeOpacity: 1.0,
+      lineOpacity: 1.0,
+      glowIntensity: 0.6
     };
   }
   
-  // Pain (8-38%): Increasing warmth and tension
+  // Pain (8-38%): Deep warm tension - burgundy/warm graphite
   if (progress < 0.38) {
     const painProgress = (progress - 0.08) / 0.30;
     
-    // Warmth increases through pain - from amber toward slightly more red
-    const hue = 25 - painProgress * 12; // 25 -> 13 (more red/stressed)
-    const saturation = 22 + painProgress * 8; // Slightly more saturated tension
-    const lightness = 42 - painProgress * 4; // Slightly darker
-    const bgWarmth = 0.15 + painProgress * 0.12; // Background gets warmer
-    const contrast = 1.0 + painProgress * 0.15; // Heavier contrast
+    // Deepen into burgundy/rust as pain accumulates
+    const hue = 28 - painProgress * 18; // 28 -> 10 (deeper red/burgundy)
+    const saturation = 35 + painProgress * 15; // More saturated
+    const lightness = 45 - painProgress * 8; // Darker, denser
     
-    return { hue, saturation, lightness, bgWarmth, contrast };
+    // Background becomes heavier, warmer
+    const bgHue = 20 - painProgress * 12; // Toward burgundy
+    const bgSaturation = 18 + painProgress * 10;
+    const bgLightness = 6 + painProgress * 2; // Slightly lighter to show warmth
+    
+    return {
+      hue, saturation, lightness,
+      bgHue, bgSaturation, bgLightness,
+      nodeOpacity: 1.0 + painProgress * 0.15,
+      lineOpacity: 1.0 + painProgress * 0.1,
+      glowIntensity: 0.6 + painProgress * 0.2
+    };
   }
   
-  // Pain peak / How transition (38-42%): Maximum tension before relief
-  if (progress < 0.42) {
-    const transitionProgress = (progress - 0.38) / 0.04;
+  // Pain peak / Transition start (38-45%): Maximum warm, beginning cool
+  if (progress < 0.45) {
+    const transitionProgress = (progress - 0.38) / 0.07;
     
-    // Peak warm, then starting to cool
-    const hue = 13 + transitionProgress * 30; // 13 -> 43 (starting toward yellow/neutral)
-    const saturation = 30 - transitionProgress * 5;
-    const lightness = 38 + transitionProgress * 2;
-    const bgWarmth = 0.27 - transitionProgress * 0.08;
-    const contrast = 1.15 - transitionProgress * 0.05;
+    // Peak warm then starting shift toward neutral
+    const hue = 10 + transitionProgress * 40; // 10 -> 50 (burgundy -> amber -> yellow)
+    const saturation = 50 - transitionProgress * 15;
+    const lightness = 37 + transitionProgress * 5;
     
-    return { hue, saturation, lightness, bgWarmth, contrast };
+    const bgHue = 8 + transitionProgress * 30;
+    const bgSaturation = 28 - transitionProgress * 10;
+    const bgLightness = 8 - transitionProgress * 1;
+    
+    return {
+      hue, saturation, lightness,
+      bgHue, bgSaturation, bgLightness,
+      nodeOpacity: 1.15 - transitionProgress * 0.1,
+      lineOpacity: 1.1,
+      glowIntensity: 0.8 - transitionProgress * 0.15
+    };
   }
   
-  // How (42-62%): Cooling transition - warm to cool
-  if (progress < 0.62) {
-    const howProgress = (progress - 0.42) / 0.20;
-    
-    // Gradual shift from warm-neutral to cool
-    // Using eased curve for natural feeling transition
+  // How (45-65%): Cooling transition - neutral to cool
+  if (progress < 0.65) {
+    const howProgress = (progress - 0.45) / 0.20;
     const easedProgress = howProgress * howProgress * (3 - 2 * howProgress);
     
-    const hue = 43 + easedProgress * 120; // 43 -> 163 (yellow-green -> teal)
-    const saturation = 25 - easedProgress * 8; // Desaturating toward calm
-    const lightness = 40 + easedProgress * 6; // Slightly lighter
-    const bgWarmth = 0.19 - easedProgress * 0.19; // Warmth fades to zero
-    const contrast = 1.1 - easedProgress * 0.2; // Lower contrast = calmer
+    // Transition from warm-neutral to cool blue-teal
+    const hue = 50 + easedProgress * 140; // 50 -> 190 (yellow-green -> teal-blue)
+    const saturation = 35 - easedProgress * 10; // Desaturating toward calm
+    const lightness = 42 + easedProgress * 6;
     
-    return { hue, saturation, lightness, bgWarmth, contrast };
+    // Background cools down
+    const bgHue = 38 + easedProgress * 170; // Warm -> cool
+    const bgSaturation = 18 - easedProgress * 8;
+    const bgLightness = 7 - easedProgress * 1;
+    
+    return {
+      hue, saturation, lightness,
+      bgHue, bgSaturation, bgLightness,
+      nodeOpacity: 1.05,
+      lineOpacity: 1.05 + easedProgress * 0.1,
+      glowIntensity: 0.65 - easedProgress * 0.15
+    };
   }
   
-  // Proof (62-82%): Cool, stable, calm
+  // Proof (65-82%): Cool, stable - deep blue/cold graphite
   if (progress < 0.82) {
-    const proofProgress = (progress - 0.62) / 0.20;
+    const proofProgress = (progress - 0.65) / 0.17;
     
-    const hue = 163 + proofProgress * 15; // 163 -> 178 (deep teal)
-    const saturation = 17 - proofProgress * 4; // Further desaturating
-    const lightness = 46 + proofProgress * 3;
-    const bgWarmth = 0;
-    const contrast = 0.9 - proofProgress * 0.05;
+    const hue = 190 + proofProgress * 10; // Deep teal-blue
+    const saturation = 25 - proofProgress * 8;
+    const lightness = 48 + proofProgress * 4;
     
-    return { hue, saturation, lightness, bgWarmth, contrast };
+    const bgHue = 208 + proofProgress * 5;
+    const bgSaturation = 10 - proofProgress * 3;
+    const bgLightness = 6;
+    
+    return {
+      hue, saturation, lightness,
+      bgHue, bgSaturation, bgLightness,
+      nodeOpacity: 1.05 + proofProgress * 0.05,
+      lineOpacity: 1.15,
+      glowIntensity: 0.5 - proofProgress * 0.1
+    };
   }
   
-  // Decision (82-96%): Near-monochrome, resolved
+  // Decision (82-96%): Near-monochrome calm - cold graphite
   if (progress < 0.96) {
     const decisionProgress = (progress - 0.82) / 0.14;
     
-    const hue = 178 + decisionProgress * 5; // Slight shift toward pure cyan
-    const saturation = 13 - decisionProgress * 8; // Very desaturated
-    const lightness = 49 + decisionProgress * 3;
-    const bgWarmth = 0;
-    const contrast = 0.85 - decisionProgress * 0.1;
+    const hue = 200 + decisionProgress * 10;
+    const saturation = 17 - decisionProgress * 10; // Very desaturated
+    const lightness = 52 + decisionProgress * 3;
     
-    return { hue, saturation, lightness, bgWarmth, contrast };
+    const bgHue = 213;
+    const bgSaturation = 7 - decisionProgress * 4;
+    const bgLightness = 6;
+    
+    return {
+      hue, saturation, lightness,
+      bgHue, bgSaturation, bgLightness,
+      nodeOpacity: 1.1,
+      lineOpacity: 1.2,
+      glowIntensity: 0.4 - decisionProgress * 0.15
+    };
   }
   
-  // Action (96-100%): Complete calm, trustworthy
+  // Action (96-100%): Resolved, trustworthy
   return {
-    hue: 183,
-    saturation: 5, // Near monochrome
-    lightness: 52,
-    bgWarmth: 0,
-    contrast: 0.75
+    hue: 210,
+    saturation: 7,
+    lightness: 55,
+    bgHue: 213,
+    bgSaturation: 3,
+    bgLightness: 6,
+    nodeOpacity: 1.1,
+    lineOpacity: 1.2,
+    glowIntensity: 0.25
   };
 };
 
 // Narrative tension with accumulated stress
 const getNarrativeTension = (progress) => {
-  // Get color state
   const colorState = getColorState(progress);
   
   if (progress < 0.08) {
-    const entryProgress = progress / 0.08;
     return {
       phase: 'entry',
       accumulatedStress: 0.1,
-      chaos: 0.15 + entryProgress * 0.1,
+      chaos: 0.15,
       misalignment: 0.12,
       desync: 0.1,
       stability: 0.3,
@@ -122,7 +171,6 @@ const getNarrativeTension = (progress) => {
     let desync = 0.1;
     let pressure = 0.1;
     
-    // Pain 1
     if (painProgress > 0.05) {
       const pain1Factor = Math.min((painProgress - 0.05) / 0.25, 1);
       accumulatedStress += 0.25 * pain1Factor;
@@ -131,7 +179,6 @@ const getNarrativeTension = (progress) => {
       pressure += 0.2 * pain1Factor;
     }
     
-    // Pain 2
     if (painProgress > 0.35) {
       const pain2Factor = Math.min((painProgress - 0.35) / 0.25, 1);
       accumulatedStress += 0.35 * pain2Factor;
@@ -140,7 +187,6 @@ const getNarrativeTension = (progress) => {
       pressure += 0.3 * pain2Factor;
     }
     
-    // Pain 3
     if (painProgress > 0.68) {
       const pain3Factor = Math.min((painProgress - 0.68) / 0.25, 1);
       accumulatedStress += 0.4 * pain3Factor;
@@ -163,39 +209,35 @@ const getNarrativeTension = (progress) => {
     };
   }
   
-  if (progress < 0.42) {
-    const transitionProgress = (progress - 0.38) / 0.04;
-    const peakStress = 1.0;
-    const reliefBeginning = transitionProgress * 0.1;
-    
+  if (progress < 0.45) {
+    const transitionProgress = (progress - 0.38) / 0.07;
     return {
       phase: 'pain-peak',
-      accumulatedStress: peakStress - reliefBeginning * 0.1,
-      chaos: 0.85 - reliefBeginning * 0.05,
-      misalignment: 0.7 - reliefBeginning * 0.05,
-      desync: 0.6 - reliefBeginning * 0.05,
-      stability: 0.08 + reliefBeginning * 0.05,
-      motionScale: 0.75,
-      pressure: 0.9,
+      accumulatedStress: 1.0 - transitionProgress * 0.15,
+      chaos: 0.85 - transitionProgress * 0.1,
+      misalignment: 0.7 - transitionProgress * 0.1,
+      desync: 0.6 - transitionProgress * 0.1,
+      stability: 0.08 + transitionProgress * 0.1,
+      motionScale: 0.75 - transitionProgress * 0.1,
+      pressure: 0.9 - transitionProgress * 0.15,
       overloaded: true,
       ...colorState
     };
   }
   
-  if (progress < 0.62) {
-    const howProgress = (progress - 0.42) / 0.20;
+  if (progress < 0.65) {
+    const howProgress = (progress - 0.45) / 0.20;
     const reliefCurve = Math.pow(howProgress, 0.6);
-    const remainingStress = 1.0 * (1 - reliefCurve * 0.85);
     
     return {
       phase: 'how',
-      accumulatedStress: remainingStress,
-      chaos: 0.8 * (1 - reliefCurve * 0.9),
-      misalignment: 0.7 * (1 - reliefCurve * 0.85),
-      desync: 0.6 * (1 - reliefCurve * 0.9),
-      stability: 0.1 + reliefCurve * 0.55,
-      motionScale: 0.7 - reliefCurve * 0.35,
-      pressure: 0.85 * (1 - reliefCurve * 0.9),
+      accumulatedStress: 0.85 * (1 - reliefCurve * 0.9),
+      chaos: 0.75 * (1 - reliefCurve * 0.92),
+      misalignment: 0.6 * (1 - reliefCurve * 0.88),
+      desync: 0.5 * (1 - reliefCurve * 0.9),
+      stability: 0.15 + reliefCurve * 0.55,
+      motionScale: 0.65 - reliefCurve * 0.35,
+      pressure: 0.75 * (1 - reliefCurve * 0.95),
       reorganizing: true,
       reorganizeStrength: reliefCurve,
       ...colorState
@@ -203,16 +245,16 @@ const getNarrativeTension = (progress) => {
   }
   
   if (progress < 0.82) {
-    const proofProgress = (progress - 0.62) / 0.20;
+    const proofProgress = (progress - 0.65) / 0.17;
     
     return {
       phase: 'proof',
-      accumulatedStress: 0.1 * (1 - proofProgress),
-      chaos: 0.05,
-      misalignment: 0.08 * (1 - proofProgress * 0.5),
-      desync: 0.05,
-      stability: 0.7 + proofProgress * 0.15,
-      motionScale: 0.25 - proofProgress * 0.08,
+      accumulatedStress: 0.08 * (1 - proofProgress),
+      chaos: 0.04,
+      misalignment: 0.06 * (1 - proofProgress * 0.5),
+      desync: 0.04,
+      stability: 0.72 + proofProgress * 0.15,
+      motionScale: 0.22 - proofProgress * 0.08,
       pressure: 0,
       ...colorState
     };
@@ -225,10 +267,10 @@ const getNarrativeTension = (progress) => {
       phase: 'decision',
       accumulatedStress: 0,
       chaos: 0.02,
-      misalignment: 0.03,
+      misalignment: 0.02,
       desync: 0.02,
       stability: 0.88 + decisionProgress * 0.08,
-      motionScale: 0.12 - decisionProgress * 0.06,
+      motionScale: 0.1 - decisionProgress * 0.05,
       pressure: 0,
       ...colorState
     };
@@ -238,16 +280,16 @@ const getNarrativeTension = (progress) => {
     phase: 'action',
     accumulatedStress: 0,
     chaos: 0.01,
-    misalignment: 0.02,
+    misalignment: 0.01,
     desync: 0.01,
     stability: 0.96,
-    motionScale: 0.06,
+    motionScale: 0.05,
     pressure: 0,
     ...colorState
   };
 };
 
-// System node
+// System node with enhanced visibility
 class SystemNode {
   constructor(x, y, layer, index) {
     this.baseX = x;
@@ -264,16 +306,17 @@ class SystemNode {
     this.driftPhase = Math.random() * Math.PI * 2;
     this.stressPhase = Math.random() * Math.PI * 2;
     
-    this.size = 1.2 + layer * 0.35;
-    this.baseOpacity = 0.11 + layer * 0.05;
+    // Increased base sizes for visibility
+    this.size = 1.6 + layer * 0.5;
+    this.baseOpacity = 0.25 + layer * 0.08; // Much higher base opacity
     
     this.stressVector = {
-      x: (Math.random() - 0.5) * 120,
-      y: (Math.random() - 0.5) * 120
+      x: (Math.random() - 0.5) * 110,
+      y: (Math.random() - 0.5) * 110
     };
     
     this.misalignAngle = Math.random() * Math.PI * 2;
-    this.misalignMagnitude = 20 + Math.random() * 40;
+    this.misalignMagnitude = 18 + Math.random() * 35;
     
     this.orderedX = x;
     this.orderedY = y;
@@ -301,26 +344,26 @@ class SystemNode {
     const pauseCalm = isPaused ? Math.min(pauseDuration / 4000, 0.3) : 0;
     const effectiveMotion = motionScale * (1 - pauseCalm * 0.5);
     
-    const stressDisplaceX = this.stressVector.x * accumulatedStress * 0.7;
-    const stressDisplaceY = this.stressVector.y * accumulatedStress * 0.7;
+    const stressDisplaceX = this.stressVector.x * accumulatedStress * 0.65;
+    const stressDisplaceY = this.stressVector.y * accumulatedStress * 0.65;
     
     const misalignX = Math.cos(this.misalignAngle) * this.misalignMagnitude * misalignment;
     const misalignY = Math.sin(this.misalignAngle) * this.misalignMagnitude * misalignment;
     
-    const pressureTremor = pressure * 2 * effectiveMotion;
+    const pressureTremor = pressure * 1.8 * effectiveMotion;
     const tremorX = Math.sin(time * 1.5 + this.stressPhase * 3) * pressureTremor;
     const tremorY = Math.cos(time * 1.8 + this.stressPhase * 2) * pressureTremor;
     
     const breathScale = (1 - pressure * 0.5) * effectiveMotion;
-    const breathX = Math.sin(time * 0.05 + this.breathPhase) * 2 * breathScale;
-    const breathY = Math.cos(time * 0.04 + this.breathPhase) * 2 * breathScale;
+    const breathX = Math.sin(time * 0.05 + this.breathPhase) * 1.5 * breathScale;
+    const breathY = Math.cos(time * 0.04 + this.breathPhase) * 1.5 * breathScale;
     
     const driftScale = (1 - accumulatedStress * 0.6) * effectiveMotion;
-    const driftX = Math.sin(time * 0.03 + this.driftPhase) * 4 * driftScale;
-    const driftY = Math.cos(time * 0.025 + this.driftPhase) * 4 * driftScale;
+    const driftX = Math.sin(time * 0.03 + this.driftPhase) * 3 * driftScale;
+    const driftY = Math.cos(time * 0.025 + this.driftPhase) * 3 * driftScale;
     
     const velocityScale = 1 - stability * 0.5;
-    const velocityOffsetY = scrollVelocity * (0.15 + this.layer * 0.1) * velocityScale;
+    const velocityOffsetY = scrollVelocity * (0.12 + this.layer * 0.08) * velocityScale;
     
     const orderPull = stability + (reorganizing ? reorganizeStrength * 0.8 : 0);
     const stressPull = 1 - orderPull;
@@ -334,7 +377,7 @@ class SystemNode {
     this.targetX = baseX + breathX + driftX + tremorX;
     this.targetY = baseY + breathY + driftY + tremorY + velocityOffsetY;
     
-    const lerpSpeed = 0.006 + (reorganizing ? 0.012 : 0) + accumulatedStress * 0.004;
+    const lerpSpeed = 0.008 + (reorganizing ? 0.015 : 0) + accumulatedStress * 0.005;
     
     const dx = this.targetX - this.x;
     const dy = this.targetY - this.y;
@@ -346,39 +389,37 @@ class SystemNode {
   }
   
   getOpacity(narrative, time) {
-    const { stability, accumulatedStress, contrast } = narrative;
+    const { stability, accumulatedStress, nodeOpacity } = narrative;
     
-    const pulse = Math.sin(time * 0.12 + this.breathPhase) * 0.03;
-    const strainFlicker = accumulatedStress * 0.05 * Math.sin(time * 0.8 + this.stressPhase);
-    const stabilityBoost = stability * 0.12;
+    const pulse = Math.sin(time * 0.1 + this.breathPhase) * 0.04;
+    const strainFlicker = accumulatedStress * 0.06 * Math.sin(time * 0.7 + this.stressPhase);
+    const stabilityBoost = stability * 0.15;
     
-    // Apply contrast from narrative
-    const baseOpacity = this.baseOpacity * contrast;
+    // Apply narrative opacity multiplier
+    const base = (this.baseOpacity + pulse + stabilityBoost - strainFlicker) * nodeOpacity;
     
-    return Math.max(0.05, Math.min(0.4, 
-      baseOpacity + pulse + stabilityBoost - strainFlicker
-    ));
+    return Math.max(0.15, Math.min(0.7, base));
   }
   
   getSize(narrative) {
     const { stability, pressure } = narrative;
-    const pressureScale = 1 - pressure * 0.1;
-    const stabilityScale = 0.9 + stability * 0.12;
+    const pressureScale = 1 - pressure * 0.08;
+    const stabilityScale = 0.92 + stability * 0.1;
     return this.size * pressureScale * stabilityScale;
   }
 }
 
-// Flow particle
+// Flow particle with enhanced visibility
 class FlowParticle {
   constructor(startNode, endNode, layer) {
     this.startNode = startNode;
     this.endNode = endNode;
     this.layer = layer;
     this.progress = Math.random();
-    this.baseSpeed = 0.001 + Math.random() * 0.0012;
+    this.baseSpeed = 0.0012 + Math.random() * 0.0014;
     this.speed = this.baseSpeed;
-    this.opacity = 0.055 + layer * 0.025;
-    this.size = 0.65 + layer * 0.22;
+    this.opacity = 0.12 + layer * 0.04; // Higher base opacity
+    this.size = 0.9 + layer * 0.3;
     this.syncPhase = Math.random() * Math.PI * 2;
     this.desyncSensitivity = 0.5 + Math.random() * 0.5;
   }
@@ -389,14 +430,14 @@ class FlowParticle {
     let speedMod = 1;
     
     if (phase === 'decision' || phase === 'action') {
-      speedMod = 0.25;
+      speedMod = 0.3;
     } else if (phase === 'proof') {
-      speedMod = 0.4;
+      speedMod = 0.45;
     } else if (phase === 'pain' || phase === 'pain-peak') {
       const desyncOffset = Math.sin(time * 1.2 + this.syncPhase) * desync * this.desyncSensitivity;
-      speedMod = 0.5 + desyncOffset + pressure * 0.2;
+      speedMod = 0.55 + desyncOffset + pressure * 0.2;
       if (pressure > 0.5 && Math.sin(time * 2 + this.syncPhase * 5) > 0.7) {
-        speedMod *= 0.3;
+        speedMod *= 0.35;
       }
     } else if (phase === 'how') {
       speedMod = 0.5 + stability * 0.4;
@@ -411,8 +452,8 @@ class FlowParticle {
     
     if (this.progress > 1) {
       this.progress = 0;
-      if (pressure > 0.3 && Math.random() < pressure * 0.4) {
-        this.progress = -0.1 * Math.random();
+      if (pressure > 0.3 && Math.random() < pressure * 0.35) {
+        this.progress = -0.08 * Math.random();
       }
     }
     
@@ -429,15 +470,15 @@ class FlowParticle {
   }
   
   getOpacity(narrative) {
-    const { stability, desync, contrast } = narrative;
+    const { stability, desync, nodeOpacity } = narrative;
     
     if (this.progress < 0) return 0;
     
     const edgeFade = Math.sin(this.progress * Math.PI);
-    const desyncFade = 1 - desync * 0.3 * Math.abs(Math.sin(this.syncPhase * 3));
-    const stabilityBoost = stability * 0.4;
+    const desyncFade = 1 - desync * 0.25 * Math.abs(Math.sin(this.syncPhase * 3));
+    const stabilityBoost = stability * 0.35;
     
-    return this.opacity * edgeFade * desyncFade * (0.5 + stabilityBoost) * contrast;
+    return this.opacity * edgeFade * desyncFade * (0.6 + stabilityBoost) * nodeOpacity;
   }
 }
 
@@ -452,10 +493,12 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
     pauseStartTime: 0,
     lastScrollTime: Date.now(),
     // Smooth color interpolation
-    currentHue: 25,
-    currentSaturation: 22,
-    currentLightness: 42,
-    currentBgWarmth: 0.15
+    currentHue: 28,
+    currentSaturation: 35,
+    currentLightness: 45,
+    currentBgHue: 20,
+    currentBgSaturation: 18,
+    currentBgLightness: 6
   });
   
   const initSystem = useCallback((width, height) => {
@@ -464,23 +507,23 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
     system.particles = [];
     
     const layers = [
-      { count: 40, connectionThreshold: 235 },
-      { count: 28, connectionThreshold: 205 },
-      { count: 18, connectionThreshold: 180 }
+      { count: 45, connectionThreshold: 230 },
+      { count: 32, connectionThreshold: 200 },
+      { count: 20, connectionThreshold: 175 }
     ];
     
     let nodeIndex = 0;
-    const padding = 55;
+    const padding = 50;
     
     layers.forEach((layerConfig, layerIndex) => {
       const layerNodes = [];
       
       for (let i = 0; i < layerConfig.count; i++) {
-        const angle = (i / layerConfig.count) * Math.PI * 2 + (Math.random() - 0.5) * 0.7;
-        const radius = 0.18 + Math.random() * 0.38;
+        const angle = (i / layerConfig.count) * Math.PI * 2 + (Math.random() - 0.5) * 0.6;
+        const radius = 0.15 + Math.random() * 0.4;
         
         let x, y;
-        if (Math.random() > 0.3) {
+        if (Math.random() > 0.25) {
           x = width * 0.5 + Math.cos(angle) * width * radius;
           y = height * 0.5 + Math.sin(angle) * height * radius;
         } else {
@@ -509,6 +552,7 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
         system.nodes.push(node);
       }
       
+      // Create more connections for visible structure
       layerNodes.forEach((node, i) => {
         layerNodes.forEach((other, j) => {
           if (i >= j) return;
@@ -518,14 +562,14 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
           const distance = Math.sqrt(dx * dx + dy * dy);
           
           if (distance < layerConfig.connectionThreshold) {
-            const prob = 1 - (distance / layerConfig.connectionThreshold) * 0.45;
+            const prob = 1 - (distance / layerConfig.connectionThreshold) * 0.35;
             if (Math.random() < prob) {
               node.connections.push(other);
               
-              if (Math.random() > 0.5) {
+              if (Math.random() > 0.4) {
                 system.particles.push(new FlowParticle(node, other, layerIndex));
               }
-              if (Math.random() > 0.65) {
+              if (Math.random() > 0.55) {
                 system.particles.push(new FlowParticle(other, node, layerIndex));
               }
             }
@@ -582,12 +626,14 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
       const pauseDuration = system.isPaused ? now - system.pauseStartTime : 0;
       const narrative = getNarrativeTension(currentProgress);
       
-      // Very smooth color interpolation (slow transitions)
-      const colorLerpSpeed = 0.015;
+      // Smooth color interpolation - slightly faster for more visible change
+      const colorLerpSpeed = 0.02;
       system.currentHue += (narrative.hue - system.currentHue) * colorLerpSpeed;
       system.currentSaturation += (narrative.saturation - system.currentSaturation) * colorLerpSpeed;
       system.currentLightness += (narrative.lightness - system.currentLightness) * colorLerpSpeed;
-      system.currentBgWarmth += (narrative.bgWarmth - system.currentBgWarmth) * colorLerpSpeed;
+      system.currentBgHue += (narrative.bgHue - system.currentBgHue) * colorLerpSpeed;
+      system.currentBgSaturation += (narrative.bgSaturation - system.currentBgSaturation) * colorLerpSpeed;
+      system.currentBgLightness += (narrative.bgLightness - system.currentBgLightness) * colorLerpSpeed;
       
       system.time += 0.016;
       
@@ -600,46 +646,39 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
         particle.update(narrative, system.time, currentVelocity, system.isPaused);
       });
       
-      // Clear with subtle warm/cool tinted background
-      const bgHue = system.currentBgWarmth > 0 ? 20 : 200;
-      const bgSat = system.currentBgWarmth * 15;
-      const bgLight = 4 + system.currentBgWarmth * 1.5;
-      ctx.fillStyle = `hsl(${bgHue}, ${bgSat}%, ${bgLight}%)`;
+      // Draw rich background with visible color
+      ctx.fillStyle = `hsl(${system.currentBgHue}, ${system.currentBgSaturation}%, ${system.currentBgLightness}%)`;
       ctx.fillRect(0, 0, width, height);
       
-      // Subtle radial gradient overlay for depth
-      const gradientRadius = Math.max(width, height) * 0.8;
+      // Subtle radial gradient for depth - less blur, more visible
       const gradient = ctx.createRadialGradient(
         width * 0.5, height * 0.5, 0,
-        width * 0.5, height * 0.5, gradientRadius
+        width * 0.5, height * 0.5, Math.max(width, height) * 0.7
       );
-      
-      // Warm center during stress, neutral during calm
-      const centerHue = system.currentBgWarmth > 0.1 ? 25 : 200;
-      const centerSat = system.currentBgWarmth * 12;
-      gradient.addColorStop(0, `hsla(${centerHue}, ${centerSat}%, 8%, 0.3)`);
-      gradient.addColorStop(0.5, `hsla(${centerHue}, ${centerSat * 0.5}%, 5%, 0.15)`);
+      gradient.addColorStop(0, `hsla(${system.currentBgHue}, ${system.currentBgSaturation + 5}%, ${system.currentBgLightness + 3}%, 0.4)`);
+      gradient.addColorStop(0.6, `hsla(${system.currentBgHue}, ${system.currentBgSaturation}%, ${system.currentBgLightness}%, 0.15)`);
       gradient.addColorStop(1, 'transparent');
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
       
-      // Current colors for elements
+      // Element colors
       const hue = system.currentHue;
       const sat = system.currentSaturation;
       const light = system.currentLightness;
+      const glowIntensity = narrative.glowIntensity;
       
       // Draw layers
       for (let layer = 0; layer < 3; layer++) {
         const layerNodes = system.nodes.filter(n => n.layer === layer);
         const layerParticles = system.particles.filter(p => p.layer === layer);
         
-        const parallaxFactor = [0.22, 0.52, 1.0][layer];
-        const parallaxY = currentVelocity * parallaxFactor * 1.0;
+        const parallaxFactor = [0.2, 0.5, 1.0][layer];
+        const parallaxY = currentVelocity * parallaxFactor * 0.8;
         
         ctx.save();
         ctx.translate(0, parallaxY);
         
-        // Draw connections with narrative color
+        // Draw connections - STRONGER, more visible
         layerNodes.forEach(node => {
           node.connections.forEach(other => {
             if (node.index < other.index) {
@@ -647,21 +686,22 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
               const otherOpacity = other.getOpacity(narrative, system.time);
               const avgOpacity = (nodeOpacity + otherOpacity) * 0.5;
               
-              const stabilityBoost = narrative.stability * 0.25;
-              const lineOpacity = (avgOpacity + stabilityBoost) * (0.4 + narrative.stability * 0.25);
+              const stabilityBoost = narrative.stability * 0.2;
+              const lineOpacity = (avgOpacity + stabilityBoost) * narrative.lineOpacity * 0.8;
               
-              // Line color shifts with narrative
-              const lineSat = sat * 0.8;
-              const lineLight = light * 0.95;
+              const lineSat = sat * 0.85;
+              const lineLight = light * 0.9;
               
+              // Stronger line gradient
               const lineGradient = ctx.createLinearGradient(node.x, node.y, other.x, other.y);
-              lineGradient.addColorStop(0, `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity * 0.6})`);
-              lineGradient.addColorStop(0.5, `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity * 0.85})`);
-              lineGradient.addColorStop(1, `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity * 0.6})`);
+              lineGradient.addColorStop(0, `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity * 0.5})`);
+              lineGradient.addColorStop(0.5, `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity})`);
+              lineGradient.addColorStop(1, `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity * 0.5})`);
               
               ctx.beginPath();
               ctx.strokeStyle = lineGradient;
-              ctx.lineWidth = 0.35 + layer * 0.12 + narrative.stability * 0.18;
+              // Thicker lines for visibility
+              ctx.lineWidth = 0.6 + layer * 0.2 + narrative.stability * 0.25;
               ctx.moveTo(node.x, node.y);
               ctx.lineTo(other.x, other.y);
               ctx.stroke();
@@ -669,33 +709,35 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
           });
         });
         
-        // Draw flow particles with narrative color
+        // Draw flow particles - more visible
         layerParticles.forEach(particle => {
           const pos = particle.getPosition();
           const opacity = particle.getOpacity(narrative);
           
-          if (opacity > 0.01) {
-            const particleSat = sat * 1.1;
-            const particleLight = light * 1.2;
+          if (opacity > 0.02) {
+            const particleSat = sat * 1.15;
+            const particleLight = light * 1.25;
             
-            // Glow
-            const glowGrad = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, particle.size * 2.2);
-            glowGrad.addColorStop(0, `hsla(${hue}, ${particleSat}%, ${particleLight}%, ${opacity * 0.4})`);
+            // Reduced glow blur, more solid
+            const glowSize = particle.size * (1.8 + glowIntensity);
+            const glowGrad = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, glowSize);
+            glowGrad.addColorStop(0, `hsla(${hue}, ${particleSat}%, ${particleLight}%, ${opacity * 0.5})`);
+            glowGrad.addColorStop(0.6, `hsla(${hue}, ${particleSat}%, ${particleLight}%, ${opacity * 0.2})`);
             glowGrad.addColorStop(1, 'transparent');
             ctx.beginPath();
             ctx.fillStyle = glowGrad;
-            ctx.arc(pos.x, pos.y, particle.size * 2.2, 0, Math.PI * 2);
+            ctx.arc(pos.x, pos.y, glowSize, 0, Math.PI * 2);
             ctx.fill();
             
-            // Core
+            // Solid core
             ctx.beginPath();
-            ctx.fillStyle = `hsla(${hue}, ${particleSat}%, ${particleLight + 8}%, ${opacity * 0.85})`;
+            ctx.fillStyle = `hsla(${hue}, ${particleSat}%, ${particleLight + 10}%, ${opacity})`;
             ctx.arc(pos.x, pos.y, particle.size, 0, Math.PI * 2);
             ctx.fill();
           }
         });
         
-        // Draw nodes with narrative color
+        // Draw nodes - clearer, more solid
         layerNodes.forEach(node => {
           const opacity = node.getOpacity(narrative, system.time);
           const size = node.getSize(narrative);
@@ -703,11 +745,11 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
           const nodeSat = sat;
           const nodeLight = light;
           
-          // Glow
-          const glowSize = size * (3.2 + layer * 0.8);
+          // Reduced glow, more solid appearance
+          const glowSize = size * (2.2 + glowIntensity * 1.5);
           const glowGradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, glowSize);
-          glowGradient.addColorStop(0, `hsla(${hue}, ${nodeSat}%, ${nodeLight}%, ${opacity * 0.28})`);
-          glowGradient.addColorStop(0.5, `hsla(${hue}, ${nodeSat}%, ${nodeLight}%, ${opacity * 0.1})`);
+          glowGradient.addColorStop(0, `hsla(${hue}, ${nodeSat}%, ${nodeLight}%, ${opacity * 0.4})`);
+          glowGradient.addColorStop(0.5, `hsla(${hue}, ${nodeSat}%, ${nodeLight}%, ${opacity * 0.15})`);
           glowGradient.addColorStop(1, 'transparent');
           
           ctx.beginPath();
@@ -715,16 +757,16 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
           ctx.arc(node.x, node.y, glowSize, 0, Math.PI * 2);
           ctx.fill();
           
-          // Core
+          // Solid node core
           ctx.beginPath();
-          ctx.fillStyle = `hsla(${hue}, ${nodeSat}%, ${nodeLight}%, ${opacity * 0.95})`;
+          ctx.fillStyle = `hsla(${hue}, ${nodeSat}%, ${nodeLight}%, ${opacity})`;
           ctx.arc(node.x, node.y, size, 0, Math.PI * 2);
           ctx.fill();
           
-          // Bright center
+          // Bright center highlight
           ctx.beginPath();
-          ctx.fillStyle = `hsla(${hue}, ${nodeSat * 0.7}%, ${nodeLight + 18}%, ${opacity * 0.55})`;
-          ctx.arc(node.x, node.y, size * 0.32, 0, Math.PI * 2);
+          ctx.fillStyle = `hsla(${hue}, ${nodeSat * 0.6}%, ${nodeLight + 22}%, ${opacity * 0.7})`;
+          ctx.arc(node.x, node.y, size * 0.35, 0, Math.PI * 2);
           ctx.fill();
         });
         
