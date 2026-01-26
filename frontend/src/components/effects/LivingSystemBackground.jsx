@@ -365,9 +365,19 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
           const pos = particle.getPosition();
           const opacity = particle.getOpacity(currentProgress);
           
-          if (opacity > 0.02) {
+          if (opacity > 0.015) {
+            // Particle glow
+            const glowGrad = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, particle.size * 3);
+            glowGrad.addColorStop(0, `hsla(180, 30%, 60%, ${opacity * 0.6})`);
+            glowGrad.addColorStop(1, 'transparent');
             ctx.beginPath();
-            ctx.fillStyle = `hsla(180, 25%, 55%, ${opacity})`;
+            ctx.fillStyle = glowGrad;
+            ctx.arc(pos.x, pos.y, particle.size * 3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Particle core
+            ctx.beginPath();
+            ctx.fillStyle = `hsla(180, 30%, 65%, ${opacity * 1.2})`;
             ctx.arc(pos.x, pos.y, particle.size, 0, Math.PI * 2);
             ctx.fill();
           }
