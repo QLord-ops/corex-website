@@ -8,7 +8,7 @@ export const SceneDecision = () => {
   
   const isInView = useInView(contentRef, { 
     once: true, 
-    margin: "-20% 0px -20% 0px" 
+    margin: "-25% 0px -25% 0px" 
   });
   
   const { scrollYProgress } = useScroll({
@@ -22,41 +22,60 @@ export const SceneDecision = () => {
   return (
     <section 
       ref={sectionRef}
-      className="min-h-[100dvh] flex items-center justify-center relative px-4 sm:px-6"
+      className="min-h-[120dvh] flex items-center justify-center relative px-4 sm:px-6"
     >
       <motion.div
         ref={contentRef}
         className="max-w-3xl text-center"
         style={{ scale, opacity }}
       >
-        {/* Visual divider */}
+        {/* Visual divider - appears first */}
         <motion.div 
-          className="mb-12 flex items-center justify-center gap-4"
+          className="mb-16 flex items-center justify-center gap-4"
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
-          transition={{ duration: 1, delay: 0.2 }}
+          transition={{ duration: 1.5, delay: 0.3 }}
         >
           <div className="w-12 h-px bg-border" />
           <div className="w-2 h-2 rotate-45 border border-primary/50" />
           <div className="w-12 h-px bg-border" />
         </motion.div>
         
-        {/* Main statement */}
+        {/* Main statement - delayed pause before appearing */}
         <motion.h2
           className="text-scene-statement mb-8"
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ 
-            duration: 0.8, 
-            delay: 0.4,
-            ease: [0.22, 1, 0.36, 1]
+            duration: 1.2, 
+            delay: 1.8,
+            ease: [0.16, 1, 0.3, 1]
           }}
         >
-          <span className="text-foreground/50">No sales.</span>
-          <br />
-          <span className="text-foreground/50">No experiments.</span>
-          <br />
-          <span className="text-foreground">Just systems that work.</span>
+          <motion.span 
+            className="text-foreground/50 block"
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.8, delay: 1.8 }}
+          >
+            No sales.
+          </motion.span>
+          <motion.span 
+            className="text-foreground/50 block"
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.8, delay: 2.4 }}
+          >
+            No experiments.
+          </motion.span>
+          <motion.span 
+            className="text-foreground block"
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : {}}
+            transition={{ duration: 1, delay: 3.2 }}
+          >
+            Just systems that work.
+          </motion.span>
         </motion.h2>
         
         {/* Subtle emphasis line */}
@@ -64,7 +83,7 @@ export const SceneDecision = () => {
           className="w-32 h-0.5 mx-auto bg-gradient-to-r from-transparent via-primary/60 to-transparent"
           initial={{ scaleX: 0, opacity: 0 }}
           animate={isInView ? { scaleX: 1, opacity: 1 } : {}}
-          transition={{ duration: 1.2, delay: 0.8 }}
+          transition={{ duration: 1.4, delay: 4 }}
         />
         
         {/* Confidence indicators */}
@@ -72,7 +91,7 @@ export const SceneDecision = () => {
           className="mt-16 flex justify-center gap-12"
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
-          transition={{ delay: 1.2 }}
+          transition={{ delay: 4.6, duration: 0.8 }}
         >
           <div className="flex flex-col items-center gap-2">
             <div className="w-8 h-8 rounded-full border border-border flex items-center justify-center">
