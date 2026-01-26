@@ -1,87 +1,172 @@
 import { useRef, useEffect, useCallback } from 'react';
 
-// Narrative tension with ACCUMULATED stress during Pain
+// Color state based on narrative phase
+const getColorState = (progress) => {
+  // Entry (0-8%): Warm, tense - stressed system
+  if (progress < 0.08) {
+    return {
+      hue: 25, // Amber/orange undertone
+      saturation: 22,
+      lightness: 42,
+      bgWarmth: 0.15, // Subtle warm tint to background
+      contrast: 1.0
+    };
+  }
+  
+  // Pain (8-38%): Increasing warmth and tension
+  if (progress < 0.38) {
+    const painProgress = (progress - 0.08) / 0.30;
+    
+    // Warmth increases through pain - from amber toward slightly more red
+    const hue = 25 - painProgress * 12; // 25 -> 13 (more red/stressed)
+    const saturation = 22 + painProgress * 8; // Slightly more saturated tension
+    const lightness = 42 - painProgress * 4; // Slightly darker
+    const bgWarmth = 0.15 + painProgress * 0.12; // Background gets warmer
+    const contrast = 1.0 + painProgress * 0.15; // Heavier contrast
+    
+    return { hue, saturation, lightness, bgWarmth, contrast };
+  }
+  
+  // Pain peak / How transition (38-42%): Maximum tension before relief
+  if (progress < 0.42) {
+    const transitionProgress = (progress - 0.38) / 0.04;
+    
+    // Peak warm, then starting to cool
+    const hue = 13 + transitionProgress * 30; // 13 -> 43 (starting toward yellow/neutral)
+    const saturation = 30 - transitionProgress * 5;
+    const lightness = 38 + transitionProgress * 2;
+    const bgWarmth = 0.27 - transitionProgress * 0.08;
+    const contrast = 1.15 - transitionProgress * 0.05;
+    
+    return { hue, saturation, lightness, bgWarmth, contrast };
+  }
+  
+  // How (42-62%): Cooling transition - warm to cool
+  if (progress < 0.62) {
+    const howProgress = (progress - 0.42) / 0.20;
+    
+    // Gradual shift from warm-neutral to cool
+    // Using eased curve for natural feeling transition
+    const easedProgress = howProgress * howProgress * (3 - 2 * howProgress);
+    
+    const hue = 43 + easedProgress * 120; // 43 -> 163 (yellow-green -> teal)
+    const saturation = 25 - easedProgress * 8; // Desaturating toward calm
+    const lightness = 40 + easedProgress * 6; // Slightly lighter
+    const bgWarmth = 0.19 - easedProgress * 0.19; // Warmth fades to zero
+    const contrast = 1.1 - easedProgress * 0.2; // Lower contrast = calmer
+    
+    return { hue, saturation, lightness, bgWarmth, contrast };
+  }
+  
+  // Proof (62-82%): Cool, stable, calm
+  if (progress < 0.82) {
+    const proofProgress = (progress - 0.62) / 0.20;
+    
+    const hue = 163 + proofProgress * 15; // 163 -> 178 (deep teal)
+    const saturation = 17 - proofProgress * 4; // Further desaturating
+    const lightness = 46 + proofProgress * 3;
+    const bgWarmth = 0;
+    const contrast = 0.9 - proofProgress * 0.05;
+    
+    return { hue, saturation, lightness, bgWarmth, contrast };
+  }
+  
+  // Decision (82-96%): Near-monochrome, resolved
+  if (progress < 0.96) {
+    const decisionProgress = (progress - 0.82) / 0.14;
+    
+    const hue = 178 + decisionProgress * 5; // Slight shift toward pure cyan
+    const saturation = 13 - decisionProgress * 8; // Very desaturated
+    const lightness = 49 + decisionProgress * 3;
+    const bgWarmth = 0;
+    const contrast = 0.85 - decisionProgress * 0.1;
+    
+    return { hue, saturation, lightness, bgWarmth, contrast };
+  }
+  
+  // Action (96-100%): Complete calm, trustworthy
+  return {
+    hue: 183,
+    saturation: 5, // Near monochrome
+    lightness: 52,
+    bgWarmth: 0,
+    contrast: 0.75
+  };
+};
+
+// Narrative tension with accumulated stress
 const getNarrativeTension = (progress) => {
-  // Entry (0-8%): Subtle uncertainty, system is functional but not optimized
+  // Get color state
+  const colorState = getColorState(progress);
+  
   if (progress < 0.08) {
     const entryProgress = progress / 0.08;
     return {
       phase: 'entry',
-      accumulatedStress: 0,
+      accumulatedStress: 0.1,
       chaos: 0.15 + entryProgress * 0.1,
-      misalignment: 0.1,
+      misalignment: 0.12,
       desync: 0.1,
       stability: 0.3,
       motionScale: 0.5,
-      pressure: 0
+      pressure: 0.1,
+      ...colorState
     };
   }
   
-  // Pain (8-38%): CUMULATIVE stress building - each statement adds permanently
   if (progress < 0.38) {
     const painProgress = (progress - 0.08) / 0.30;
     
-    // Three pain thresholds - stress accumulates at each
-    // Pain 1: "Projects stall." (0-33% of pain section)
-    // Pain 2: "No clear ownership." (33-66% of pain section)
-    // Pain 3: "Manual work kills growth." (66-100% of pain section)
-    
-    let accumulatedStress = 0;
-    let misalignment = 0.1;
+    let accumulatedStress = 0.1;
+    let misalignment = 0.12;
     let desync = 0.1;
-    let pressure = 0;
+    let pressure = 0.1;
     
-    // Pain 1 stress (permanently added after crossing threshold)
+    // Pain 1
     if (painProgress > 0.05) {
       const pain1Factor = Math.min((painProgress - 0.05) / 0.25, 1);
       accumulatedStress += 0.25 * pain1Factor;
-      misalignment += 0.15 * pain1Factor; // Lines start losing alignment
-      desync += 0.12 * pain1Factor; // Flows start desyncing
+      misalignment += 0.15 * pain1Factor;
+      desync += 0.12 * pain1Factor;
       pressure += 0.2 * pain1Factor;
     }
     
-    // Pain 2 stress (adds on top of pain 1)
+    // Pain 2
     if (painProgress > 0.35) {
       const pain2Factor = Math.min((painProgress - 0.35) / 0.25, 1);
       accumulatedStress += 0.35 * pain2Factor;
-      misalignment += 0.25 * pain2Factor; // More misalignment
-      desync += 0.2 * pain2Factor; // Flows more erratic
+      misalignment += 0.25 * pain2Factor;
+      desync += 0.2 * pain2Factor;
       pressure += 0.3 * pain2Factor;
     }
     
-    // Pain 3 stress (peak - adds on top of pain 1 + 2)
+    // Pain 3
     if (painProgress > 0.68) {
       const pain3Factor = Math.min((painProgress - 0.68) / 0.25, 1);
       accumulatedStress += 0.4 * pain3Factor;
-      misalignment += 0.3 * pain3Factor; // Maximum misalignment
-      desync += 0.28 * pain3Factor; // Flows feel broken
+      misalignment += 0.3 * pain3Factor;
+      desync += 0.28 * pain3Factor;
       pressure += 0.5 * pain3Factor;
     }
-    
-    // Chaos is based on accumulated stress
-    const chaos = 0.2 + accumulatedStress * 0.8;
     
     return {
       phase: 'pain',
       painLevel: painProgress < 0.33 ? 1 : painProgress < 0.66 ? 2 : 3,
       accumulatedStress,
-      chaos,
-      misalignment, // How much lines deviate from proper alignment
-      desync, // How unsynchronized flows are
+      chaos: 0.2 + accumulatedStress * 0.8,
+      misalignment,
+      desync,
       stability: Math.max(0.05, 0.25 - accumulatedStress * 0.25),
-      motionScale: 0.5 + accumulatedStress * 0.3, // More agitated motion
-      pressure // Operational pressure feeling
+      motionScale: 0.5 + accumulatedStress * 0.3,
+      pressure,
+      ...colorState
     };
   }
   
-  // End of Pain / Start of How: System is OVERLOADED
-  // This is the peak stress moment before relief begins
   if (progress < 0.42) {
     const transitionProgress = (progress - 0.38) / 0.04;
-    
-    // Peak accumulated stress - system feels unsustainable
     const peakStress = 1.0;
-    const reliefBeginning = transitionProgress * 0.1; // Very slight relief starting
+    const reliefBeginning = transitionProgress * 0.1;
     
     return {
       phase: 'pain-peak',
@@ -92,19 +177,14 @@ const getNarrativeTension = (progress) => {
       stability: 0.08 + reliefBeginning * 0.05,
       motionScale: 0.75,
       pressure: 0.9,
-      overloaded: true
+      overloaded: true,
+      ...colorState
     };
   }
   
-  // How (42-62%): Active stress relief - system reorganizes
   if (progress < 0.62) {
     const howProgress = (progress - 0.42) / 0.20;
-    
-    // Stress relief is gradual and earned
-    // Fast relief at first (the "aha" moment), then settling
-    const reliefCurve = Math.pow(howProgress, 0.6); // Front-loaded relief
-    
-    // Accumulated stress slowly drains
+    const reliefCurve = Math.pow(howProgress, 0.6);
     const remainingStress = 1.0 * (1 - reliefCurve * 0.85);
     
     return {
@@ -117,11 +197,11 @@ const getNarrativeTension = (progress) => {
       motionScale: 0.7 - reliefCurve * 0.35,
       pressure: 0.85 * (1 - reliefCurve * 0.9),
       reorganizing: true,
-      reorganizeStrength: reliefCurve
+      reorganizeStrength: reliefCurve,
+      ...colorState
     };
   }
   
-  // Proof (62-82%): Stable, stress fully resolved
   if (progress < 0.82) {
     const proofProgress = (progress - 0.62) / 0.20;
     
@@ -133,11 +213,11 @@ const getNarrativeTension = (progress) => {
       desync: 0.05,
       stability: 0.7 + proofProgress * 0.15,
       motionScale: 0.25 - proofProgress * 0.08,
-      pressure: 0
+      pressure: 0,
+      ...colorState
     };
   }
   
-  // Decision (82-96%): Near silence
   if (progress < 0.96) {
     const decisionProgress = (progress - 0.82) / 0.14;
     
@@ -149,11 +229,11 @@ const getNarrativeTension = (progress) => {
       desync: 0.02,
       stability: 0.88 + decisionProgress * 0.08,
       motionScale: 0.12 - decisionProgress * 0.06,
-      pressure: 0
+      pressure: 0,
+      ...colorState
     };
   }
   
-  // Action (96-100%): Complete trust
   return {
     phase: 'action',
     accumulatedStress: 0,
@@ -162,11 +242,12 @@ const getNarrativeTension = (progress) => {
     desync: 0.01,
     stability: 0.96,
     motionScale: 0.06,
-    pressure: 0
+    pressure: 0,
+    ...colorState
   };
 };
 
-// System node with stress response
+// System node
 class SystemNode {
   constructor(x, y, layer, index) {
     this.baseX = x;
@@ -179,30 +260,24 @@ class SystemNode {
     this.index = index;
     this.connections = [];
     
-    // Unique phase offsets
     this.breathPhase = Math.random() * Math.PI * 2;
     this.driftPhase = Math.random() * Math.PI * 2;
     this.stressPhase = Math.random() * Math.PI * 2;
     
-    // Visual properties
     this.size = 1.2 + layer * 0.35;
     this.baseOpacity = 0.11 + layer * 0.05;
     
-    // Stress displacement - unique per node, activated by accumulated stress
     this.stressVector = {
       x: (Math.random() - 0.5) * 120,
       y: (Math.random() - 0.5) * 120
     };
     
-    // Misalignment direction - unique per node
     this.misalignAngle = Math.random() * Math.PI * 2;
     this.misalignMagnitude = 20 + Math.random() * 40;
     
-    // Ordered position (grid)
     this.orderedX = x;
     this.orderedY = y;
     
-    // Velocity for smooth motion
     this.vx = 0;
     this.vy = 0;
   }
@@ -215,7 +290,6 @@ class SystemNode {
   update(narrative, time, scrollVelocity, isPaused, pauseDuration) {
     const { 
       accumulatedStress, 
-      chaos, 
       misalignment, 
       stability, 
       motionScale, 
@@ -224,61 +298,44 @@ class SystemNode {
       reorganizeStrength = 0
     } = narrative;
     
-    // Pause calming - but stress doesn't fully disappear
     const pauseCalm = isPaused ? Math.min(pauseDuration / 4000, 0.3) : 0;
     const effectiveMotion = motionScale * (1 - pauseCalm * 0.5);
     
-    // === STRESS-BASED DISPLACEMENT ===
-    
-    // 1. Accumulated stress displacement - PERMANENT until How phase
     const stressDisplaceX = this.stressVector.x * accumulatedStress * 0.7;
     const stressDisplaceY = this.stressVector.y * accumulatedStress * 0.7;
     
-    // 2. Misalignment - lines/connections feel "off"
     const misalignX = Math.cos(this.misalignAngle) * this.misalignMagnitude * misalignment;
     const misalignY = Math.sin(this.misalignAngle) * this.misalignMagnitude * misalignment;
     
-    // 3. Pressure tremor - subtle uncomfortable vibration under stress
     const pressureTremor = pressure * 2 * effectiveMotion;
     const tremorX = Math.sin(time * 1.5 + this.stressPhase * 3) * pressureTremor;
     const tremorY = Math.cos(time * 1.8 + this.stressPhase * 2) * pressureTremor;
     
-    // 4. Breathing - always present but affected by stress
     const breathScale = (1 - pressure * 0.5) * effectiveMotion;
     const breathX = Math.sin(time * 0.05 + this.breathPhase) * 2 * breathScale;
     const breathY = Math.cos(time * 0.04 + this.breathPhase) * 2 * breathScale;
     
-    // 5. Organic drift - reduced under stress (system is "locked up")
     const driftScale = (1 - accumulatedStress * 0.6) * effectiveMotion;
     const driftX = Math.sin(time * 0.03 + this.driftPhase) * 4 * driftScale;
     const driftY = Math.cos(time * 0.025 + this.driftPhase) * 4 * driftScale;
     
-    // 6. Scroll velocity response
     const velocityScale = 1 - stability * 0.5;
     const velocityOffsetY = scrollVelocity * (0.15 + this.layer * 0.1) * velocityScale;
     
-    // === POSITION CALCULATION ===
-    
-    // Base position interpolates between stressed and ordered
     const orderPull = stability + (reorganizing ? reorganizeStrength * 0.8 : 0);
     const stressPull = 1 - orderPull;
     
-    // Stressed position = base + stress displacement + misalignment
     const stressedX = this.baseX + stressDisplaceX + misalignX;
     const stressedY = this.baseY + stressDisplaceY + misalignY;
     
-    // Blend between stressed and ordered
     const baseX = stressedX * stressPull + this.orderedX * orderPull;
     const baseY = stressedY * stressPull + this.orderedY * orderPull;
     
-    // Final target with motion
     this.targetX = baseX + breathX + driftX + tremorX;
     this.targetY = baseY + breathY + driftY + tremorY + velocityOffsetY;
     
-    // Interpolation speed - slower when stable, slightly faster under stress
     const lerpSpeed = 0.006 + (reorganizing ? 0.012 : 0) + accumulatedStress * 0.004;
     
-    // Velocity-based movement for organic feel
     const dx = this.targetX - this.x;
     const dy = this.targetY - this.y;
     this.vx = this.vx * 0.85 + dx * lerpSpeed;
@@ -289,32 +346,29 @@ class SystemNode {
   }
   
   getOpacity(narrative, time) {
-    const { stability, pressure, accumulatedStress } = narrative;
+    const { stability, accumulatedStress, contrast } = narrative;
     
-    // Subtle pulse
     const pulse = Math.sin(time * 0.12 + this.breathPhase) * 0.03;
-    
-    // Under stress, opacity becomes slightly uneven (system strain)
     const strainFlicker = accumulatedStress * 0.05 * Math.sin(time * 0.8 + this.stressPhase);
-    
-    // Stability increases visibility
     const stabilityBoost = stability * 0.12;
     
-    return Math.max(0.05, Math.min(0.38, 
-      this.baseOpacity + pulse + stabilityBoost - strainFlicker
+    // Apply contrast from narrative
+    const baseOpacity = this.baseOpacity * contrast;
+    
+    return Math.max(0.05, Math.min(0.4, 
+      baseOpacity + pulse + stabilityBoost - strainFlicker
     ));
   }
   
   getSize(narrative) {
     const { stability, pressure } = narrative;
-    // Slightly smaller under pressure (system strained)
     const pressureScale = 1 - pressure * 0.1;
     const stabilityScale = 0.9 + stability * 0.12;
     return this.size * pressureScale * stabilityScale;
   }
 }
 
-// Flow particle with desync behavior
+// Flow particle
 class FlowParticle {
   constructor(startNode, endNode, layer) {
     this.startNode = startNode;
@@ -325,8 +379,6 @@ class FlowParticle {
     this.speed = this.baseSpeed;
     this.opacity = 0.055 + layer * 0.025;
     this.size = 0.65 + layer * 0.22;
-    
-    // Desync properties - unique timing offset
     this.syncPhase = Math.random() * Math.PI * 2;
     this.desyncSensitivity = 0.5 + Math.random() * 0.5;
   }
@@ -334,46 +386,36 @@ class FlowParticle {
   update(narrative, time, scrollVelocity, isPaused) {
     const { desync, stability, motionScale, phase, pressure } = narrative;
     
-    // Base speed varies by phase
     let speedMod = 1;
     
     if (phase === 'decision' || phase === 'action') {
-      speedMod = 0.25; // Very slow, reliable
+      speedMod = 0.25;
     } else if (phase === 'proof') {
-      speedMod = 0.4; // Slow, confident
+      speedMod = 0.4;
     } else if (phase === 'pain' || phase === 'pain-peak') {
-      // Desync causes erratic timing - flows feel "off"
       const desyncOffset = Math.sin(time * 1.2 + this.syncPhase) * desync * this.desyncSensitivity;
       speedMod = 0.5 + desyncOffset + pressure * 0.2;
-      
-      // Sometimes flows stutter under pressure
       if (pressure > 0.5 && Math.sin(time * 2 + this.syncPhase * 5) > 0.7) {
         speedMod *= 0.3;
       }
     } else if (phase === 'how') {
-      // Flows synchronizing - becoming purposeful
       speedMod = 0.5 + stability * 0.4;
     } else {
       speedMod = 0.6;
     }
     
-    // Pause slows flow
-    if (isPaused) {
-      speedMod *= 0.5;
-    }
+    if (isPaused) speedMod *= 0.5;
     
     this.speed = this.baseSpeed * speedMod * motionScale;
     this.progress += this.speed;
     
     if (this.progress > 1) {
       this.progress = 0;
-      // Under stress, some flows hesitate before restarting
       if (pressure > 0.3 && Math.random() < pressure * 0.4) {
-        this.progress = -0.1 * Math.random(); // Brief pause
+        this.progress = -0.1 * Math.random();
       }
     }
     
-    // Clamp to valid range
     this.progress = Math.max(0, this.progress);
   }
   
@@ -387,19 +429,15 @@ class FlowParticle {
   }
   
   getOpacity(narrative) {
-    const { stability, desync, phase } = narrative;
+    const { stability, desync, contrast } = narrative;
     
-    if (this.progress < 0) return 0; // Hidden during hesitation
+    if (this.progress < 0) return 0;
     
     const edgeFade = Math.sin(this.progress * Math.PI);
-    
-    // Desync makes flows inconsistent in visibility
     const desyncFade = 1 - desync * 0.3 * Math.abs(Math.sin(this.syncPhase * 3));
-    
-    // More visible when stable
     const stabilityBoost = stability * 0.4;
     
-    return this.opacity * edgeFade * desyncFade * (0.5 + stabilityBoost);
+    return this.opacity * edgeFade * desyncFade * (0.5 + stabilityBoost) * contrast;
   }
 }
 
@@ -412,7 +450,12 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
     time: 0,
     isPaused: false,
     pauseStartTime: 0,
-    lastScrollTime: Date.now()
+    lastScrollTime: Date.now(),
+    // Smooth color interpolation
+    currentHue: 25,
+    currentSaturation: 22,
+    currentLightness: 42,
+    currentBgWarmth: 0.15
   });
   
   const initSystem = useCallback((width, height) => {
@@ -433,7 +476,6 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
       const layerNodes = [];
       
       for (let i = 0; i < layerConfig.count; i++) {
-        // Organic initial distribution
         const angle = (i / layerConfig.count) * Math.PI * 2 + (Math.random() - 0.5) * 0.7;
         const radius = 0.18 + Math.random() * 0.38;
         
@@ -451,7 +493,6 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
         
         const node = new SystemNode(x, y, layerIndex, nodeIndex++);
         
-        // Grid position for ordered state
         const gridCols = Math.ceil(Math.sqrt(layerConfig.count * (width / height)));
         const gridRows = Math.ceil(layerConfig.count / gridCols);
         const col = i % gridCols;
@@ -468,7 +509,6 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
         system.nodes.push(node);
       }
       
-      // Create connections
       layerNodes.forEach((node, i) => {
         layerNodes.forEach((other, j) => {
           if (i >= j) return;
@@ -523,12 +563,9 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
         initSystem(width, height);
       }
       
-      ctx.clearRect(0, 0, width, height);
-      
       const currentProgress = typeof progress.get === 'function' ? progress.get() : 0;
       const currentVelocity = typeof scrollVelocity.get === 'function' ? scrollVelocity.get() : 0;
       
-      // Pause detection
       const now = Date.now();
       const isScrolling = Math.abs(currentVelocity) > 0.25;
       
@@ -543,21 +580,53 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
       }
       
       const pauseDuration = system.isPaused ? now - system.pauseStartTime : 0;
-      
-      // Get narrative state with accumulated stress
       const narrative = getNarrativeTension(currentProgress);
+      
+      // Very smooth color interpolation (slow transitions)
+      const colorLerpSpeed = 0.015;
+      system.currentHue += (narrative.hue - system.currentHue) * colorLerpSpeed;
+      system.currentSaturation += (narrative.saturation - system.currentSaturation) * colorLerpSpeed;
+      system.currentLightness += (narrative.lightness - system.currentLightness) * colorLerpSpeed;
+      system.currentBgWarmth += (narrative.bgWarmth - system.currentBgWarmth) * colorLerpSpeed;
       
       system.time += 0.016;
       
-      // Update nodes
+      // Update nodes and particles
       system.nodes.forEach(node => {
         node.update(narrative, system.time, currentVelocity, system.isPaused, pauseDuration);
       });
       
-      // Update particles
       system.particles.forEach(particle => {
         particle.update(narrative, system.time, currentVelocity, system.isPaused);
       });
+      
+      // Clear with subtle warm/cool tinted background
+      const bgHue = system.currentBgWarmth > 0 ? 20 : 200;
+      const bgSat = system.currentBgWarmth * 15;
+      const bgLight = 4 + system.currentBgWarmth * 1.5;
+      ctx.fillStyle = `hsl(${bgHue}, ${bgSat}%, ${bgLight}%)`;
+      ctx.fillRect(0, 0, width, height);
+      
+      // Subtle radial gradient overlay for depth
+      const gradientRadius = Math.max(width, height) * 0.8;
+      const gradient = ctx.createRadialGradient(
+        width * 0.5, height * 0.5, 0,
+        width * 0.5, height * 0.5, gradientRadius
+      );
+      
+      // Warm center during stress, neutral during calm
+      const centerHue = system.currentBgWarmth > 0.1 ? 25 : 200;
+      const centerSat = system.currentBgWarmth * 12;
+      gradient.addColorStop(0, `hsla(${centerHue}, ${centerSat}%, 8%, 0.3)`);
+      gradient.addColorStop(0.5, `hsla(${centerHue}, ${centerSat * 0.5}%, 5%, 0.15)`);
+      gradient.addColorStop(1, 'transparent');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, width, height);
+      
+      // Current colors for elements
+      const hue = system.currentHue;
+      const sat = system.currentSaturation;
+      const light = system.currentLightness;
       
       // Draw layers
       for (let layer = 0; layer < 3; layer++) {
@@ -570,7 +639,7 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
         ctx.save();
         ctx.translate(0, parallaxY);
         
-        // Draw connections - affected by misalignment
+        // Draw connections with narrative color
         layerNodes.forEach(node => {
           node.connections.forEach(other => {
             if (node.index < other.index) {
@@ -578,19 +647,20 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
               const otherOpacity = other.getOpacity(narrative, system.time);
               const avgOpacity = (nodeOpacity + otherOpacity) * 0.5;
               
-              // Connection stability affects appearance
               const stabilityBoost = narrative.stability * 0.25;
-              const stressWobble = narrative.pressure * 0.08;
+              const lineOpacity = (avgOpacity + stabilityBoost) * (0.4 + narrative.stability * 0.25);
               
-              const lineOpacity = (avgOpacity + stabilityBoost) * (0.45 + narrative.stability * 0.2);
+              // Line color shifts with narrative
+              const lineSat = sat * 0.8;
+              const lineLight = light * 0.95;
               
-              const gradient = ctx.createLinearGradient(node.x, node.y, other.x, other.y);
-              gradient.addColorStop(0, `hsla(185, 18%, 42%, ${lineOpacity * 0.7})`);
-              gradient.addColorStop(0.5, `hsla(185, 18%, 42%, ${lineOpacity})`);
-              gradient.addColorStop(1, `hsla(185, 18%, 42%, ${lineOpacity * 0.7})`);
+              const lineGradient = ctx.createLinearGradient(node.x, node.y, other.x, other.y);
+              lineGradient.addColorStop(0, `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity * 0.6})`);
+              lineGradient.addColorStop(0.5, `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity * 0.85})`);
+              lineGradient.addColorStop(1, `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity * 0.6})`);
               
               ctx.beginPath();
-              ctx.strokeStyle = gradient;
+              ctx.strokeStyle = lineGradient;
               ctx.lineWidth = 0.35 + layer * 0.12 + narrative.stability * 0.18;
               ctx.moveTo(node.x, node.y);
               ctx.lineTo(other.x, other.y);
@@ -599,15 +669,18 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
           });
         });
         
-        // Draw flow particles
+        // Draw flow particles with narrative color
         layerParticles.forEach(particle => {
           const pos = particle.getPosition();
           const opacity = particle.getOpacity(narrative);
           
           if (opacity > 0.01) {
+            const particleSat = sat * 1.1;
+            const particleLight = light * 1.2;
+            
             // Glow
             const glowGrad = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, particle.size * 2.2);
-            glowGrad.addColorStop(0, `hsla(180, 22%, 56%, ${opacity * 0.45})`);
+            glowGrad.addColorStop(0, `hsla(${hue}, ${particleSat}%, ${particleLight}%, ${opacity * 0.4})`);
             glowGrad.addColorStop(1, 'transparent');
             ctx.beginPath();
             ctx.fillStyle = glowGrad;
@@ -616,22 +689,25 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
             
             // Core
             ctx.beginPath();
-            ctx.fillStyle = `hsla(180, 22%, 60%, ${opacity * 0.9})`;
+            ctx.fillStyle = `hsla(${hue}, ${particleSat}%, ${particleLight + 8}%, ${opacity * 0.85})`;
             ctx.arc(pos.x, pos.y, particle.size, 0, Math.PI * 2);
             ctx.fill();
           }
         });
         
-        // Draw nodes
+        // Draw nodes with narrative color
         layerNodes.forEach(node => {
           const opacity = node.getOpacity(narrative, system.time);
           const size = node.getSize(narrative);
           
+          const nodeSat = sat;
+          const nodeLight = light;
+          
           // Glow
           const glowSize = size * (3.2 + layer * 0.8);
           const glowGradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, glowSize);
-          glowGradient.addColorStop(0, `hsla(180, 20%, 48%, ${opacity * 0.28})`);
-          glowGradient.addColorStop(0.5, `hsla(180, 20%, 48%, ${opacity * 0.1})`);
+          glowGradient.addColorStop(0, `hsla(${hue}, ${nodeSat}%, ${nodeLight}%, ${opacity * 0.28})`);
+          glowGradient.addColorStop(0.5, `hsla(${hue}, ${nodeSat}%, ${nodeLight}%, ${opacity * 0.1})`);
           glowGradient.addColorStop(1, 'transparent');
           
           ctx.beginPath();
@@ -641,13 +717,13 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
           
           // Core
           ctx.beginPath();
-          ctx.fillStyle = `hsla(180, 18%, 50%, ${opacity * 0.95})`;
+          ctx.fillStyle = `hsla(${hue}, ${nodeSat}%, ${nodeLight}%, ${opacity * 0.95})`;
           ctx.arc(node.x, node.y, size, 0, Math.PI * 2);
           ctx.fill();
           
           // Bright center
           ctx.beginPath();
-          ctx.fillStyle = `hsla(180, 15%, 65%, ${opacity * 0.6})`;
+          ctx.fillStyle = `hsla(${hue}, ${nodeSat * 0.7}%, ${nodeLight + 18}%, ${opacity * 0.55})`;
           ctx.arc(node.x, node.y, size * 0.32, 0, Math.PI * 2);
           ctx.fill();
         });
