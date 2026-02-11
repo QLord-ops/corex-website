@@ -6,6 +6,9 @@ import { SceneHow } from './scenes/SceneHow';
 import { SceneProof } from './scenes/SceneProof';
 import { SceneDecision } from './scenes/SceneDecision';
 import { SceneAction } from './scenes/SceneAction';
+import { SceneFAQ } from './scenes/SceneFAQ';
+import { SceneAbout } from './scenes/SceneAbout';
+import { SceneTestimonials } from './scenes/SceneTestimonials';
 import { LivingSystemBackground } from './effects/LivingSystemBackground';
 import { ProgressIndicator } from './effects/ProgressIndicator';
 import { Header } from './Header';
@@ -73,11 +76,11 @@ export const ScrollExperience = () => {
     };
   }, [scrollVelocity]);
   
-  // Track current scene for progress indicator
+  // Track current scene for progress indicator (9 scenes)
   useEffect(() => {
     const unsubscribe = scrollYProgress.on('change', (value) => {
-      const sceneIndex = Math.floor(value * 6);
-      setCurrentScene(Math.min(sceneIndex, 5));
+      const sceneIndex = Math.floor(value * 9);
+      setCurrentScene(Math.min(sceneIndex, 8));
     });
     return () => unsubscribe();
   }, [scrollYProgress]);
@@ -116,6 +119,9 @@ export const ScrollExperience = () => {
         <SceneHow />
         <SceneProof />
         <SceneDecision />
+        <SceneFAQ />
+        <SceneAbout />
+        <SceneTestimonials />
         <SceneAction />
       </div>
       

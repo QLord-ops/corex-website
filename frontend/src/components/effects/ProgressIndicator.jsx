@@ -6,6 +6,9 @@ const sceneLabels = [
   'How',
   'Proof',
   'Decision',
+  'FAQ',
+  'About',
+  'Cases',
   'Action'
 ];
 

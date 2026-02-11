@@ -1,6 +1,14 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
 
 export const Header = () => {
+  const { t, language, setLanguage } = useTranslation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   
@@ -66,22 +74,39 @@ export const Header = () => {
                 onClick={() => scrollToSection('how')}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300"
               >
-                How it works
+                {t('header.howItWorks')}
               </button>
               <span className="text-muted-foreground/30">·</span>
               <button
                 onClick={() => scrollToSection('proof')}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300"
               >
-                Proof
+                {t('header.proof')}
               </button>
               <span className="text-muted-foreground/30">·</span>
               <button
                 onClick={() => scrollToSection('contact')}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300"
               >
-                Contact
+                {t('header.contact')}
               </button>
+              <span className="text-muted-foreground/30">·</span>
+              {/* Language Switcher */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300 uppercase">
+                    {language}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-[100px]">
+                  <DropdownMenuItem onClick={() => setLanguage('en')}>
+                    English
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setLanguage('de')}>
+                    Deutsch
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </nav>
             
             {/* Mobile Menu Button */}
@@ -123,26 +148,52 @@ export const Header = () => {
                 onClick={() => scrollToSection('explore')}
                 className="block w-full text-left py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                Explore
+                {t('header.explore')}
               </button>
               <button
                 onClick={() => scrollToSection('how')}
                 className="block w-full text-left py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                How it works
+                {t('header.howItWorks')}
               </button>
               <button
                 onClick={() => scrollToSection('proof')}
                 className="block w-full text-left py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                Proof
+                {t('header.proof')}
               </button>
               <button
                 onClick={() => scrollToSection('contact')}
                 className="block w-full text-left py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                Contact
+                {t('header.contact')}
               </button>
+              {/* Mobile Language Switcher */}
+              <div className="border-t border-border/50 pt-3 mt-3">
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setLanguage('en')}
+                    className={`flex-1 py-2 text-xs uppercase transition-colors ${
+                      language === 'en' 
+                        ? 'text-foreground font-medium' 
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    English
+                  </button>
+                  <span className="text-muted-foreground/30">|</span>
+                  <button
+                    onClick={() => setLanguage('de')}
+                    className={`flex-1 py-2 text-xs uppercase transition-colors ${
+                      language === 'de' 
+                        ? 'text-foreground font-medium' 
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    Deutsch
+                  </button>
+                </div>
+              </div>
             </nav>
           </div>
         </div>

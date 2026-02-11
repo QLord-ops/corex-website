@@ -1,13 +1,7 @@
 import { useRef } from 'react';
 import { motion, useInView, useScroll, useTransform } from 'framer-motion';
 import { AnimatedText } from '../effects/AnimatedText';
-
-const stats = [
-  { value: "+38%", label: "qualified leads", prefix: "", suffix: "" },
-  { value: "-42%", label: "manual operations", prefix: "", suffix: "" },
-  { value: "2-6", label: "weeks to launch", prefix: "", suffix: "" },
-  { value: "24h", label: "support response", prefix: "", suffix: "" }
-];
+import { useTranslation } from '@/hooks/useTranslation';
 
 const StatItem = ({ stat, index }) => {
   const ref = useRef(null);
@@ -44,6 +38,7 @@ const StatItem = ({ stat, index }) => {
 };
 
 export const SceneProof = () => {
+  const { t } = useTranslation();
   const sectionRef = useRef(null);
   const transitionRef = useRef(null);
   
@@ -55,16 +50,23 @@ export const SceneProof = () => {
   const transitionOpacity = useTransform(scrollYProgress, [0.3, 0.5, 0.7], [0, 1, 0.8]);
   const transitionY = useTransform(scrollYProgress, [0.3, 0.5], [50, 0]);
   
+  const stats = [
+    { value: t('proof.stat1.value'), label: t('proof.stat1.label') },
+    { value: t('proof.stat2.value'), label: t('proof.stat2.label') },
+    { value: t('proof.stat3.value'), label: t('proof.stat3.label') },
+    { value: t('proof.stat4.value'), label: t('proof.stat4.label') }
+  ];
+  
   return (
     <section ref={sectionRef} className="relative">
       {/* Section intro */}
       <div className="min-h-[30vh] sm:min-h-[40vh] flex items-end justify-center pb-8 sm:pb-12 px-4 sm:px-6">
         <AnimatedText className="text-center">
           <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground block mb-4">
-            The results
+            {t('proof.sectionTitle')}
           </span>
           <h2 className="text-scene-body text-foreground/80">
-            Proven in real projects
+            {t('proof.subtitle')}
           </h2>
         </AnimatedText>
       </div>
@@ -119,7 +121,7 @@ export const SceneProof = () => {
         >
           <div className="w-16 h-px bg-border mx-auto mb-8" />
           <p className="text-scene-body text-foreground/70 italic">
-            Built for businesses that need stability, not experiments.
+            {t('proof.transition')}
           </p>
           <div className="w-16 h-px bg-border mx-auto mt-8" />
         </motion.div>

@@ -1,28 +1,13 @@
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { AnimatedText, AnimatedLine } from '../effects/AnimatedText';
+import { useTranslation } from '@/hooks/useTranslation';
 
-const howSteps = [
-  { 
-    text: "We define the system.",
-    description: "Clear architecture, documented processes",
-    icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-  },
-  { 
-    text: "We build what matters.",
-    description: "Focused development, measured progress",
-    icon: "M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-  },
-  { 
-    text: "We automate the flow.",
-    description: "Systematic efficiency, reduced friction",
-    icon: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-  },
-  { 
-    text: "We run and support it.",
-    description: "Ongoing operation, continuous improvement",
-    icon: "M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"
-  }
+const iconPaths = [
+  "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
+  "M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10",
+  "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15",
+  "M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"
 ];
 
 const HowStep = ({ step, index, total }) => {
@@ -63,6 +48,7 @@ const HowStep = ({ step, index, total }) => {
               stroke="currentColor"
               strokeWidth="1.5"
               className="text-primary"
+              aria-hidden="true"
             >
               <path d={step.icon} strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -134,16 +120,41 @@ const HowStep = ({ step, index, total }) => {
 };
 
 export const SceneHow = () => {
+  const { t } = useTranslation();
+  
+  const howSteps = [
+    { 
+      text: t('how.step1.title'),
+      description: t('how.step1.description'),
+      icon: iconPaths[0]
+    },
+    { 
+      text: t('how.step2.title'),
+      description: t('how.step2.description'),
+      icon: iconPaths[1]
+    },
+    { 
+      text: t('how.step3.title'),
+      description: t('how.step3.description'),
+      icon: iconPaths[2]
+    },
+    { 
+      text: t('how.step4.title'),
+      description: t('how.step4.description'),
+      icon: iconPaths[3]
+    }
+  ];
+  
   return (
     <section className="relative">
       {/* Section intro */}
       <div className="min-h-[30vh] sm:min-h-[40vh] flex items-end justify-center pb-8 sm:pb-12 px-4 sm:px-6">
         <AnimatedText className="text-center">
           <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground block mb-4">
-            The approach
+            {t('how.sectionTitle')}
           </span>
           <h2 className="text-scene-body text-foreground/80">
-            How we bring order
+            {t('how.subtitle')}
           </h2>
         </AnimatedText>
       </div>

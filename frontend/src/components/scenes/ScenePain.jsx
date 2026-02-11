@@ -1,12 +1,7 @@
 import { useRef } from 'react';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { AnimatedText } from '../effects/AnimatedText';
-
-const painPoints = [
-  { text: "Projects stall.", id: 1 },
-  { text: "No clear ownership.", id: 2 },
-  { text: "Manual work kills growth.", id: 3 }
-];
+import { useTranslation } from '@/hooks/useTranslation';
 
 const PainStatement = ({ text, index }) => {
   const ref = useRef(null);
@@ -71,7 +66,14 @@ const PainStatement = ({ text, index }) => {
 };
 
 export const ScenePain = () => {
+  const { t } = useTranslation();
   const sectionRef = useRef(null);
+  
+  const painPoints = [
+    { text: t('pain.point1'), id: 1 },
+    { text: t('pain.point2'), id: 2 },
+    { text: t('pain.point3'), id: 3 }
+  ];
   
   return (
     <section ref={sectionRef} className="relative">
@@ -79,7 +81,7 @@ export const ScenePain = () => {
       <div className="min-h-[30vh] sm:min-h-[40vh] flex items-end justify-center pb-8 sm:pb-12 px-4 sm:px-6">
         <AnimatedText>
           <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-            The reality
+            {t('pain.sectionTitle')}
           </span>
         </AnimatedText>
       </div>

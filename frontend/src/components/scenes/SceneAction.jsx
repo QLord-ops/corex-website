@@ -3,8 +3,10 @@ import { motion, useInView } from 'framer-motion';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export const SceneAction = () => {
+  const { t } = useTranslation();
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { 
     once: true, 
@@ -41,10 +43,10 @@ export const SceneAction = () => {
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         >
           <h2 className="text-scene-statement mb-4">
-            Let&apos;s bring order to your system.
+            {t('action.title')}
           </h2>
           <p className="text-scene-small text-muted-foreground">
-            No forms, no funnels. Just a conversation.
+            {t('action.subtitle')}
           </p>
         </motion.div>
         
@@ -60,41 +62,44 @@ export const SceneAction = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-xs uppercase tracking-wider text-muted-foreground">
-                    Name
+                    {t('action.form.name')}
                   </label>
                   <Input
                     value={formState.name}
                     onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-                    placeholder="Your name"
+                    placeholder={t('action.form.name')}
                     className="bg-secondary/50 border-border focus:border-primary/50 transition-colors"
                     required
+                    aria-label={t('action.form.name')}
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs uppercase tracking-wider text-muted-foreground">
-                    Email
+                    {t('action.form.email')}
                   </label>
                   <Input
                     type="email"
                     value={formState.email}
                     onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                    placeholder="your@email.com"
+                    placeholder={t('action.form.email')}
                     className="bg-secondary/50 border-border focus:border-primary/50 transition-colors"
                     required
+                    aria-label={t('action.form.email')}
                   />
                 </div>
               </div>
               
               <div className="space-y-2">
                 <label className="text-xs uppercase tracking-wider text-muted-foreground">
-                  What do you need?
+                  {t('action.form.message')}
                 </label>
                 <Textarea
                   value={formState.message}
                   onChange={(e) => setFormState({ ...formState, message: e.target.value })}
-                  placeholder="Brief description of your challenge..."
+                  placeholder={t('action.form.messagePlaceholder')}
                   rows={4}
                   className="bg-secondary/50 border-border focus:border-primary/50 transition-colors resize-none"
+                  aria-label={t('action.form.message')}
                 />
               </div>
               
@@ -103,7 +108,7 @@ export const SceneAction = () => {
                 className="w-full bg-primary/90 hover:bg-primary text-primary-foreground transition-all duration-300"
                 size="lg"
               >
-                Start the conversation
+                {t('action.form.submit')}
               </Button>
             </form>
           ) : (
@@ -131,16 +136,16 @@ export const SceneAction = () => {
                   <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </motion.div>
-              <h3 className="text-scene-body mb-2">Message received</h3>
+              <h3 className="text-scene-body mb-2">{t('action.form.successTitle')}</h3>
               <p className="text-scene-small text-muted-foreground">
-                We&apos;ll be in touch within 24 hours.
+                {t('action.form.successMessage')}
               </p>
               <Button 
                 variant="ghost" 
                 className="mt-6 text-muted-foreground hover:text-foreground"
                 onClick={() => setSubmitted(false)}
               >
-                Send another message
+                {t('action.form.sendAnother')}
               </Button>
             </motion.div>
           )}
@@ -154,7 +159,7 @@ export const SceneAction = () => {
           transition={{ delay: 0.8 }}
         >
           <p className="text-xs text-muted-foreground/60">
-            Quiet confidence. No hype. Just systems that work.
+            {t('action.footer')}
           </p>
         </motion.div>
       </div>

@@ -1,8 +1,10 @@
 import { useRef } from 'react';
 import { motion, useInView, useScroll, useTransform } from 'framer-motion';
 import { StaggeredText } from '../effects/AnimatedText';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export const SceneDecision = () => {
+  const { t } = useTranslation();
   const sectionRef = useRef(null);
   const contentRef = useRef(null);
   
@@ -58,7 +60,7 @@ export const SceneDecision = () => {
             animate={isInView ? { opacity: 1 } : {}}
             transition={{ duration: 0.8, delay: 1.8 }}
           >
-            No sales.
+            {t('decision.noSales')}
           </motion.span>
           <motion.span 
             className="text-foreground/50 block"
@@ -66,7 +68,7 @@ export const SceneDecision = () => {
             animate={isInView ? { opacity: 1 } : {}}
             transition={{ duration: 0.8, delay: 2.4 }}
           >
-            No experiments.
+            {t('decision.noExperiments')}
           </motion.span>
           <motion.span 
             className="text-foreground block"
@@ -74,7 +76,7 @@ export const SceneDecision = () => {
             animate={isInView ? { opacity: 1 } : {}}
             transition={{ duration: 1, delay: 3.2 }}
           >
-            Just systems that work.
+            {t('decision.justSystems')}
           </motion.span>
         </motion.h2>
         
@@ -107,7 +109,7 @@ export const SceneDecision = () => {
                 <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-            <span className="text-xs text-muted-foreground">Proven</span>
+            <span className="text-xs text-muted-foreground">{t('decision.proven')}</span>
           </div>
           
           <div className="flex flex-col items-center gap-2">
@@ -120,11 +122,12 @@ export const SceneDecision = () => {
                 stroke="currentColor"
                 strokeWidth="2"
                 className="text-primary"
+                aria-hidden="true"
               >
                 <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-            <span className="text-xs text-muted-foreground">Secure</span>
+            <span className="text-xs text-muted-foreground">{t('decision.secure')}</span>
           </div>
           
           <div className="flex flex-col items-center gap-2">
@@ -137,11 +140,12 @@ export const SceneDecision = () => {
                 stroke="currentColor"
                 strokeWidth="2"
                 className="text-primary"
+                aria-hidden="true"
               >
                 <path d="M13 10V3L4 14h7v7l9-11h-7z" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-            <span className="text-xs text-muted-foreground">Fast</span>
+            <span className="text-xs text-muted-foreground">{t('decision.fast')}</span>
           </div>
         </motion.div>
       </motion.div>

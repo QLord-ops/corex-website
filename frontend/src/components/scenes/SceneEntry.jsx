@@ -2,8 +2,10 @@ import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { AnimatedText, AnimatedLine, StaggeredText } from '../effects/AnimatedText';
 import { Button } from '../ui/button';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export const SceneEntry = () => {
+  const { t } = useTranslation();
   const sectionRef = useRef(null);
   
   const { scrollYProgress } = useScroll({
@@ -34,7 +36,7 @@ export const SceneEntry = () => {
         {/* Main headline */}
         <div className="mb-10 sm:mb-12">
           <StaggeredText 
-            text="Turn chaos into a working system."
+            text={t('entry.hero')}
             className="text-scene-hero text-glow mb-8"
           />
         </div>
@@ -42,7 +44,7 @@ export const SceneEntry = () => {
         {/* Supporting statements */}
         <AnimatedText delay={0.6} className="mb-8">
           <p className="text-scene-body max-w-2xl mx-auto">
-            Build, automate, manage, support — in one team.
+            {t('entry.subtitle')}
           </p>
         </AnimatedText>
         
@@ -55,15 +57,15 @@ export const SceneEntry = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-12 text-scene-small mb-12">
             <span className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse-subtle" />
-              Clear deadlines
+              {t('entry.clearDeadlines')}
             </span>
             <span className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse-subtle" />
-              Transparent process
+              {t('entry.transparentProcess')}
             </span>
             <span className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse-subtle" />
-              Real support
+              {t('entry.realSupport')}
             </span>
           </div>
         </AnimatedText>
@@ -74,7 +76,7 @@ export const SceneEntry = () => {
             onClick={scrollToExplore}
             className="inline-flex items-center gap-3 px-6 py-3 text-sm text-muted-foreground hover:text-foreground border border-border/50 hover:border-border rounded-sm transition-colors duration-500 group"
           >
-            <span>Explore the system</span>
+            <span>{t('entry.exploreButton')}</span>
             <svg 
               width="16" 
               height="16" 
