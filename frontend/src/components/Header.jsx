@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 import {
   DropdownMenu,
@@ -91,6 +92,20 @@ export const Header = () => {
                 {t('header.contact')}
               </button>
               <span className="text-muted-foreground/30">·</span>
+              <Link
+                to="/consultation"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300"
+              >
+                {t('header.consultation')}
+              </Link>
+              <span className="text-muted-foreground/30">·</span>
+              <Link
+                to="/builder"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300"
+              >
+                Конструктор
+              </Link>
+              <span className="text-muted-foreground/30">·</span>
               {/* Language Switcher */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -168,6 +183,18 @@ export const Header = () => {
               >
                 {t('header.contact')}
               </button>
+              <Link
+                to="/consultation"
+                className="block w-full text-left py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {t('header.consultation')}
+              </Link>
+              <Link
+                to="/builder"
+                className="block w-full text-left py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Конструктор
+              </Link>
               {/* Mobile Language Switcher */}
               <div className="border-t border-border/50 pt-3 mt-3">
                 <div className="flex gap-2">

@@ -14,7 +14,8 @@ export const translations = {
       howItWorks: "How it works",
       proof: "Proof",
       contact: "Contact",
-      explore: "Explore"
+      explore: "Explore",
+      consultation: "Project Check"
     },
     
     // SceneEntry
@@ -187,7 +188,8 @@ export const translations = {
       howItWorks: "Wie es funktioniert",
       proof: "Beweis",
       contact: "Kontakt",
-      explore: "Erkunden"
+      explore: "Erkunden",
+      consultation: "Projekt-Check"
     },
     
     // SceneEntry
@@ -357,7 +359,8 @@ export const translations = {
       howItWorks: "Wie es funktioniert",
       proof: "Beweis",
       contact: "Kontakt",
-      explore: "Erkunden"
+      explore: "Erkunden",
+      consultation: "Projekt-Check"
     },
     entry: {
       hero: "Aus Chaos wird ein funktionierendes System.",
