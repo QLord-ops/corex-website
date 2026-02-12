@@ -15,10 +15,17 @@ from datetime import datetime, timezone
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+# MongoDB connection - graceful handling if MongoDB is not available
+mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+try:
+    client = AsyncIOMotorClient(mongo_url, serverSelectionTimeoutMS=3000)
+    db = client[os.environ.get('DB_NAME', 'corex')]
+    print("[OK] MongoDB клиент создан (проверка подключения при первом запросе)")
+except Exception as e:
+    print(f"[WARNING] Не удалось создать MongoDB клиент ({str(e)[:50]}). Backend запустится, но некоторые функции могут не работать.")
+    # Create dummy client to prevent errors
+    client = None
+    db = None
 
 # Create the main app without a prefix
 app = FastAPI()
@@ -104,6 +111,9 @@ async def root():
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
+    if db is None:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=503, detail="MongoDB не доступна. Пожалуйста, установите MongoDB или используйте MongoDB Atlas.")
     status_dict = input.model_dump()
     status_obj = StatusCheck(**status_dict)
     
@@ -116,6 +126,8 @@ async def create_status_check(input: StatusCheckCreate):
 
 @api_router.get("/status", response_model=List[StatusCheck])
 async def get_status_checks():
+    if db is None:
+        return []
     # Exclude MongoDB's _id field from the query results
     status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
     
@@ -475,4 +487,5 @@ logger = logging.getLogger(__name__)
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
-    client.close()
+    if client:
+        client.close()

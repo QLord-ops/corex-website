@@ -1,59 +1,65 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, lazy, Suspense } from 'react';
 import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
 import { SceneEntry } from './scenes/SceneEntry';
-import { ScenePain } from './scenes/ScenePain';
-import { SceneHow } from './scenes/SceneHow';
-import { SceneProof } from './scenes/SceneProof';
-import { SceneDecision } from './scenes/SceneDecision';
-import { SceneAction } from './scenes/SceneAction';
-import { SceneFAQ } from './scenes/SceneFAQ';
-import { SceneAbout } from './scenes/SceneAbout';
-import { SceneTestimonials } from './scenes/SceneTestimonials';
-import { LivingSystemBackground } from './effects/LivingSystemBackground';
-import { ProgressIndicator } from './effects/ProgressIndicator';
 import { Header } from './Header';
+import { ProgressIndicator } from './effects/ProgressIndicator';
+import { isMobile, shouldReduceAnimations } from '@/utils/device';
 
-// Detect mobile and reduced motion preference
-const isMobile = () => {
-  if (typeof window === 'undefined') return false;
-  return window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-};
+// Lazy load heavy components - using named exports
+const LivingSystemBackground = lazy(() => import('./effects/LivingSystemBackground').then(m => ({ default: m.LivingSystemBackground })));
+const LivingSystemBackgroundMobile = lazy(() => import('./effects/LivingSystemBackgroundMobile').then(m => ({ default: m.LivingSystemBackgroundMobile })));
 
-const prefersReducedMotion = () => {
-  if (typeof window === 'undefined') return false;
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-};
+const ScenePain = lazy(() => import('./scenes/ScenePain').then(m => ({ default: m.ScenePain })));
+const SceneHow = lazy(() => import('./scenes/SceneHow').then(m => ({ default: m.SceneHow })));
+const SceneProof = lazy(() => import('./scenes/SceneProof').then(m => ({ default: m.SceneProof })));
+const SceneDecision = lazy(() => import('./scenes/SceneDecision').then(m => ({ default: m.SceneDecision })));
+const SceneFAQ = lazy(() => import('./scenes/SceneFAQ').then(m => ({ default: m.SceneFAQ })));
+const SceneAbout = lazy(() => import('./scenes/SceneAbout').then(m => ({ default: m.SceneAbout })));
+const SceneTestimonials = lazy(() => import('./scenes/SceneTestimonials').then(m => ({ default: m.SceneTestimonials })));
+const SceneAction = lazy(() => import('./scenes/SceneAction').then(m => ({ default: m.SceneAction })));
+
+const LoadingPlaceholder = () => <div className="min-h-[100dvh]" />;
 
 export const ScrollExperience = () => {
   const containerRef = useRef(null);
   const [currentScene, setCurrentScene] = useState(0);
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
+  const [reduceAnimations, setReduceAnimations] = useState(false);
   const lastScrollY = useRef(0);
   const lastScrollTime = useRef(Date.now());
   const scrollVelocity = useMotionValue(0);
   
-  const mobile = isMobile();
-  const reducedMotion = prefersReducedMotion();
+  useEffect(() => {
+    try {
+      setIsMobileDevice(isMobile());
+      setReduceAnimations(shouldReduceAnimations());
+    } catch (error) {
+      console.error('Error initializing device detection:', error);
+      setIsMobileDevice(false);
+      setReduceAnimations(false);
+    }
+  }, []);
   
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"]
   });
   
-  // Reduced animation complexity for mobile
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: mobile ? 50 : 30,
-    damping: mobile ? 40 : 30,
-    restDelta: mobile ? 0.01 : 0.001
+    stiffness: reduceAnimations ? 50 : 30,
+    damping: reduceAnimations ? 50 : 30,
+    restDelta: 0.001
   });
   
   const smoothScrollVelocity = useSpring(scrollVelocity, {
-    stiffness: mobile ? 150 : 100,
-    damping: mobile ? 40 : 30,
-    restDelta: mobile ? 0.01 : 0.001
+    stiffness: reduceAnimations ? 150 : 100,
+    damping: reduceAnimations ? 50 : 30,
+    restDelta: 0.001
   });
   
   useEffect(() => {
-    let rafId;
+    if (reduceAnimations) return; // Skip velocity tracking on mobile
+    
     let decayInterval;
     
     const handleScroll = () => {
@@ -69,23 +75,21 @@ export const ScrollExperience = () => {
       lastScrollTime.current = currentTime;
     };
     
-    // Throttle decay interval on mobile
     decayInterval = setInterval(() => {
       const timeSinceScroll = Date.now() - lastScrollTime.current;
       if (timeSinceScroll > 100) {
         const currentVel = scrollVelocity.get();
         scrollVelocity.set(currentVel * 0.9);
       }
-    }, mobile ? 100 : 50);
+    }, 50);
     
     window.addEventListener('scroll', handleScroll, { passive: true });
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
       clearInterval(decayInterval);
-      if (rafId) cancelAnimationFrame(rafId);
     };
-  }, [scrollVelocity, mobile]);
+  }, [scrollVelocity, reduceAnimations]);
   
   useEffect(() => {
     const unsubscribe = scrollYProgress.on('change', (value) => {
@@ -99,18 +103,20 @@ export const ScrollExperience = () => {
     <div 
       ref={containerRef}
       className="relative bg-background min-h-[600vh]"
-      style={{ 
-        willChange: mobile ? 'auto' : 'transform',
-        transform: 'translateZ(0)' // GPU acceleration
-      }}
     >
       <Header />
       
       <div className="fixed inset-0 z-0">
-        <LivingSystemBackground 
-          progress={smoothProgress} 
-          scrollVelocity={smoothScrollVelocity}
-        />
+        <Suspense fallback={<div className="absolute inset-0 bg-background" />}>
+          {isMobileDevice ? (
+            <LivingSystemBackgroundMobile progress={smoothProgress} />
+          ) : (
+            <LivingSystemBackground 
+              progress={smoothProgress} 
+              scrollVelocity={smoothScrollVelocity}
+            />
+          )}
+        </Suspense>
         <div 
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -119,21 +125,27 @@ export const ScrollExperience = () => {
         />
       </div>
       
-      {!reducedMotion && <ProgressIndicator progress={smoothProgress} currentScene={currentScene} />}
+      {!reduceAnimations && (
+        <ProgressIndicator progress={smoothProgress} currentScene={currentScene} />
+      )}
       
       <div className="relative z-10">
         <SceneEntry />
-        <ScenePain />
-        <SceneHow />
-        <SceneProof />
-        <SceneDecision />
-        <SceneFAQ />
-        <SceneAbout />
-        <SceneTestimonials />
-        <SceneAction />
+        <Suspense fallback={<LoadingPlaceholder />}>
+          <ScenePain />
+          <SceneHow />
+          <SceneProof />
+          <SceneDecision />
+          <SceneFAQ />
+          <SceneAbout />
+          <SceneTestimonials />
+          <SceneAction />
+        </Suspense>
       </div>
       
-      {!mobile && <div className="fixed inset-0 z-20 pointer-events-none noise-overlay" />}
+      {!reduceAnimations && (
+        <div className="fixed inset-0 z-20 pointer-events-none noise-overlay" />
+      )}
     </div>
   );
 };

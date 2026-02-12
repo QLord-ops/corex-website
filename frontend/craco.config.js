@@ -65,6 +65,32 @@ const webpackConfig = {
       if (config.enableHealthCheck && healthPluginInstance) {
         webpackConfig.plugins.push(healthPluginInstance);
       }
+      
+      // Performance optimizations
+      if (!isDevServer) {
+        // Code splitting optimization
+        webpackConfig.optimization = {
+          ...webpackConfig.optimization,
+          splitChunks: {
+            chunks: 'all',
+            cacheGroups: {
+              vendor: {
+                test: /[\\/]node_modules[\\/]/,
+                name: 'vendors',
+                priority: 10,
+                reuseExistingChunk: true,
+              },
+              framerMotion: {
+                test: /[\\/]node_modules[\\/]framer-motion[\\/]/,
+                name: 'framer-motion',
+                priority: 20,
+                reuseExistingChunk: true,
+              },
+            },
+          },
+        };
+      }
+      
       return webpackConfig;
     },
   },

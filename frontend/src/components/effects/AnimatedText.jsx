@@ -1,16 +1,6 @@
 import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
-
-// Detect mobile and reduced motion
-const isMobile = () => {
-  if (typeof window === 'undefined') return false;
-  return window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-};
-
-const prefersReducedMotion = () => {
-  if (typeof window === 'undefined') return false;
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-};
+import { useRef, useState, useEffect } from 'react';
+import { shouldReduceAnimations } from '@/utils/device';
 
 export const AnimatedText = ({ 
   children, 
@@ -21,30 +11,23 @@ export const AnimatedText = ({
   as = 'div'
 }) => {
   const ref = useRef(null);
-  const mobile = isMobile();
-  const reducedMotion = prefersReducedMotion();
+  const [reduceAnimations, setReduceAnimations] = useState(false);
   const isInView = useInView(ref, { 
     once, 
-    margin: mobile ? "0px" : "-10% 0px -10% 0px",
-    amount: mobile ? 0.1 : 0.3
+    margin: "-10% 0px -10% 0px",
+    amount: 0.3
   });
   
-  const MotionComponent = motion[as] || motion.div;
+  useEffect(() => {
+    setReduceAnimations(shouldReduceAnimations());
+  }, []);
   
-  // Simplified animation for mobile
-  if (mobile || reducedMotion) {
-    return (
-      <MotionComponent
-        ref={ref}
-        className={className}
-        initial={false}
-        animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-        transition={{ duration: 0.3, delay }}
-      >
-        {children}
-      </MotionComponent>
-    );
+  if (reduceAnimations) {
+    const Component = as === 'div' ? 'div' : as;
+    return <Component ref={ref} className={className}>{children}</Component>;
   }
+  
+  const MotionComponent = motion[as] || motion.div;
   
   return (
     <MotionComponent
@@ -53,8 +36,8 @@ export const AnimatedText = ({
       initial={{ opacity: 0, y: 30 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
       transition={{ 
-        duration,
-        delay,
+        duration: duration * 0.7, // Faster on mobile
+        delay: delay * 0.5, // Less delay
         ease: [0.22, 1, 0.36, 1]
       }}
     >
@@ -69,18 +52,15 @@ export const AnimatedLine = ({
   direction = 'horizontal'
 }) => {
   const ref = useRef(null);
-  const mobile = isMobile();
-  const reducedMotion = prefersReducedMotion();
-  const isInView = useInView(ref, { once: true, margin: mobile ? "0px" : "-10%" });
+  const [reduceAnimations, setReduceAnimations] = useState(false);
+  const isInView = useInView(ref, { once: true, margin: "-10%" });
   
-  if (mobile || reducedMotion) {
-    return (
-      <div
-        ref={ref}
-        className={`bg-primary/30 ${className}`}
-        style={{ opacity: isInView ? 1 : 0, transition: 'opacity 0.3s' }}
-      />
-    );
+  useEffect(() => {
+    setReduceAnimations(shouldReduceAnimations());
+  }, []);
+  
+  if (reduceAnimations) {
+    return <div ref={ref} className={`bg-primary/30 ${className}`} />;
   }
   
   return (
@@ -96,8 +76,8 @@ export const AnimatedLine = ({
         scaleY: 1,
       } : {}}
       transition={{ 
-        duration: 1.2,
-        delay,
+        duration: 0.8,
+        delay: delay * 0.5,
         ease: [0.22, 1, 0.36, 1]
       }}
       style={{ transformOrigin: direction === 'horizontal' ? 'left' : 'top' }}
@@ -113,17 +93,23 @@ export const StaggeredText = ({
   initialDelay = 0
 }) => {
   const ref = useRef(null);
-  const mobile = isMobile();
-  const reducedMotion = prefersReducedMotion();
-  const isInView = useInView(ref, { once: true, margin: mobile ? "0px" : "-10%" });
+  const [reduceAnimations, setReduceAnimations] = useState(false);
+  const isInView = useInView(ref, { once: true, margin: "-10%" });
+  
+  useEffect(() => {
+    setReduceAnimations(shouldReduceAnimations());
+  }, []);
   
   const words = text.split(' ');
   
-  // Simplified for mobile - no stagger
-  if (mobile || reducedMotion) {
+  if (reduceAnimations) {
     return (
-      <div ref={ref} className={className} style={{ opacity: isInView ? 1 : 0, transition: 'opacity 0.3s' }}>
-        {text}
+      <div ref={ref} className={className}>
+        {words.map((word, index) => (
+          <span key={index} className={`inline-block mr-[0.25em] ${wordClassName}`}>
+            {word}
+          </span>
+        ))}
       </div>
     );
   }
@@ -137,8 +123,8 @@ export const StaggeredText = ({
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{
-            duration: 0.6,
-            delay: initialDelay + index * staggerDelay,
+            duration: 0.4,
+            delay: initialDelay + index * staggerDelay * 0.5,
             ease: [0.22, 1, 0.36, 1]
           }}
         >
