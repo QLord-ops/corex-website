@@ -22,7 +22,6 @@ export const SceneAction = () => {
   
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Simulated form submission
     setSubmitted(true);
     setTimeout(() => {
       setFormState({ name: '', email: '', message: '' });
@@ -30,12 +29,11 @@ export const SceneAction = () => {
   };
   
   return (
-    <section 
+    <footer 
       ref={sectionRef}
       className="min-h-[100dvh] flex items-center justify-center relative px-4 sm:px-6 py-12 sm:pb-24"
     >
       <div className="max-w-xl w-full">
-        {/* Headline */}
         <motion.div 
           className="text-center mb-12"
           initial={{ opacity: 0, y: 30 }}
@@ -50,7 +48,6 @@ export const SceneAction = () => {
           </p>
         </motion.div>
         
-        {/* Contact form placeholder */}
         <motion.div
           className="relative"
           initial={{ opacity: 0, y: 40 }}
@@ -58,13 +55,14 @@ export const SceneAction = () => {
           transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
         >
           {!submitted ? (
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6" aria-label="Contact form">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-xs uppercase tracking-wider text-muted-foreground">
+                  <label htmlFor="contact-name" className="text-xs uppercase tracking-wider text-muted-foreground">
                     {t('action.form.name')}
                   </label>
                   <Input
+                    id="contact-name"
                     value={formState.name}
                     onChange={(e) => setFormState({ ...formState, name: e.target.value })}
                     placeholder={t('action.form.name')}
@@ -74,10 +72,11 @@ export const SceneAction = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs uppercase tracking-wider text-muted-foreground">
+                  <label htmlFor="contact-email" className="text-xs uppercase tracking-wider text-muted-foreground">
                     {t('action.form.email')}
                   </label>
                   <Input
+                    id="contact-email"
                     type="email"
                     value={formState.email}
                     onChange={(e) => setFormState({ ...formState, email: e.target.value })}
@@ -90,10 +89,11 @@ export const SceneAction = () => {
               </div>
               
               <div className="space-y-2">
-                <label className="text-xs uppercase tracking-wider text-muted-foreground">
+                <label htmlFor="contact-message" className="text-xs uppercase tracking-wider text-muted-foreground">
                   {t('action.form.message')}
                 </label>
                 <Textarea
+                  id="contact-message"
                   value={formState.message}
                   onChange={(e) => setFormState({ ...formState, message: e.target.value })}
                   placeholder={t('action.form.messagePlaceholder')}
@@ -132,6 +132,7 @@ export const SceneAction = () => {
                   stroke="currentColor"
                   strokeWidth="2"
                   className="text-primary"
+                  aria-hidden="true"
                 >
                   <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
@@ -151,7 +152,6 @@ export const SceneAction = () => {
           )}
         </motion.div>
         
-        {/* Footer note */}
         <motion.div 
           className="mt-16 text-center"
           initial={{ opacity: 0 }}
@@ -163,6 +163,6 @@ export const SceneAction = () => {
           </p>
         </motion.div>
       </div>
-    </section>
+    </footer>
   );
 };

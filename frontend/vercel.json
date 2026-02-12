@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "buildCommand": "cd .. && cd frontend && yarn install && yarn build",
+  "outputDirectory": "frontend/build",
+  "framework": "create-react-app",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "env": {
+    "REACT_APP_API_URL": "https://api.corexdigital.de"
+  }
+}

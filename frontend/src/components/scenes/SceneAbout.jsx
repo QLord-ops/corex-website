@@ -9,7 +9,7 @@ export const SceneAbout = () => {
   const isInView = useInView(sectionRef, { once: true, margin: '-10%' });
 
   const about = translations[language]?.about || {};
-  const title = about.title ?? 'About COREX';
+  const title = about.title ?? 'About COREX DIGITAL';
   const subtitle = about.subtitle ?? 'We turn chaos into systems that work.';
   const paragraph1 = about.paragraph1 ?? '';
   const paragraph2 = about.paragraph2 ?? '';
@@ -50,7 +50,7 @@ export const SceneAbout = () => {
               {contactLabel}
             </p>
             <p className="text-scene-small text-foreground/90">
-              {emailLabel}: contact@corex.example
+              {emailLabel}: <a href="mailto:corexdigital.info@gmail.com" className="hover:text-primary transition-colors underline">corexdigital.info@gmail.com</a>
             </p>
             <p className="text-scene-small text-foreground/90 mt-1">
               {addressLabel}: {addressPlaceholder}

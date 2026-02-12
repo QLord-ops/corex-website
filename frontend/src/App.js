@@ -10,7 +10,9 @@ function MainSite() {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <DocumentHead />
-      <ScrollExperience />
+      <main>
+        <ScrollExperience />
+      </main>
     </div>
   );
 }

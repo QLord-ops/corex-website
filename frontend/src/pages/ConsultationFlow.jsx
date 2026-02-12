@@ -285,7 +285,7 @@ export function ConsultationFlow() {
         <header className="border-b border-border/50">
           <div className="max-w-xl mx-auto px-4 py-4">
             <Link to="/" className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
-              <ArrowLeft className="w-4 h-4" /> COREX
+              <ArrowLeft className="w-4 h-4" /> COREX DIGITAL
             </Link>
           </div>
         </header>
@@ -375,7 +375,7 @@ export function ConsultationFlow() {
         <header className="border-b border-border/50">
           <div className="max-w-xl mx-auto px-4 py-4 flex items-center justify-between">
             <Link to="/" className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
-              <ArrowLeft className="w-4 h-4" /> COREX
+              <ArrowLeft className="w-4 h-4" /> COREX DIGITAL
             </Link>
           </div>
         </header>
@@ -453,13 +453,13 @@ export function ConsultationFlow() {
             {consultantRecommendation?.urgencyReason && <p className="text-sm text-muted-foreground mb-3">{consultantRecommendation.urgencyReason}</p>}
             <div className="flex flex-col sm:flex-row gap-3">
               <Button asChild size="lg" className="flex-1">
-                <a href="mailto:info@corex.example?subject=Detailangebot anfordern">
+                <a href="mailto:corexdigital.info@gmail.com?subject=Detailangebot anfordern">
                   <Send className="w-4 h-4 mr-2" />
                   {ctaPrimary}
                 </a>
               </Button>
               <Button asChild variant="outline" size="lg" className="flex-1">
-                <a href="mailto:info@corex.example?subject=Strategiegespräch">
+                <a href="mailto:corexdigital.info@gmail.com?subject=Strategiegespräch">
                   <Calendar className="w-4 h-4 mr-2" />
                   {ctaSecondary}
                 </a>

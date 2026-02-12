@@ -65,7 +65,7 @@ export const Header = () => {
             {/* Company Name - System Label Style */}
             <div className="flex-shrink-0">
               <span className="text-sm sm:text-base font-medium tracking-[0.25em] text-foreground/90">
-                COREX
+                COREX DIGITAL
               </span>
             </div>
             

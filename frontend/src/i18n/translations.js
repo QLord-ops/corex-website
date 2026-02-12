@@ -1,12 +1,12 @@
-// Translations for COREX website
+// Translations for COREX DIGITAL website
 // English (en) and German (de)
 
 export const translations = {
   en: {
     // SEO (dynamic title & description)
     seo: {
-      title: "COREX - System Development & Automation for B2B | Germany",
-      description: "COREX develops and automates business systems for B2B companies. Clear deadlines, transparent process, real support. Turn chaos into a working system."
+      title: "COREX DIGITAL - System Development & Automation for B2B | Germany",
+      description: "COREX DIGITAL develops and automates business systems for B2B companies. Clear deadlines, transparent process, real support. Turn chaos into a working system."
     },
     
     // Header
@@ -114,7 +114,7 @@ export const translations = {
       subtitle: "Answers to the most important questions about our services",
       items: [
         {
-          question: "What industries does COREX serve?",
+          question: "What industries does COREX DIGITAL serve?",
           answer: "We work with B2B companies across various industries, including manufacturing, logistics, e-commerce, financial services, and technology. Our approach is applicable across industries."
         },
         {
@@ -122,7 +122,7 @@ export const translations = {
           answer: "Typically 2-6 weeks, depending on your project's complexity. We work in clear phases and keep you updated on progress."
         },
         {
-          question: "What sets COREX apart from other providers?",
+          question: "What sets COREX DIGITAL apart from other providers?",
           answer: "We offer proven systems, not experiments. Clear deadlines, transparent processes, and real support—not just during development, but afterwards as well."
         },
         {
@@ -130,7 +130,7 @@ export const translations = {
           answer: "We define the system together, build what matters, automate the flow, and operate and support it continuously. All in one team, without external dependencies."
         },
         {
-          question: "What technologies does COREX use?",
+          question: "What technologies does COREX DIGITAL use?",
           answer: "We select technologies based on your requirements. Our focus is on proven, stable solutions that work long-term."
         },
         {
@@ -142,9 +142,9 @@ export const translations = {
     
     // About
     about: {
-      title: "About COREX",
+      title: "About COREX DIGITAL",
       subtitle: "From chaos to systems that work.",
-      paragraph1: "COREX is an IT company specializing in website development, project development, project management, automation, and support. We work with B2B companies to develop, manage, automate, and support their digital systems—all in one team, with clear deadlines and transparent processes.",
+      paragraph1: "COREX DIGITAL is an IT company specializing in website development, project development, project management, automation, and support. We work with B2B companies to develop, manage, automate, and support their digital systems—all in one team, with clear deadlines and transparent processes.",
       paragraph2: "No experiments, no hype. We deliver proven solutions for companies that need stability and long-term support.",
       contact: "Contact",
       email: "Email",
@@ -179,8 +179,8 @@ export const translations = {
   de: {
     // SEO (dynamic title & description)
     seo: {
-      title: "COREX - Systementwicklung & Automatisierung für B2B | Deutschland",
-      description: "COREX entwickelt und automatisiert Geschäftssysteme für B2B-Unternehmen. Klare Deadlines, transparenter Prozess, echte Unterstützung. Aus Chaos wird ein funktionierendes System."
+      title: "COREX DIGITAL - Systementwicklung & Automatisierung für B2B | Deutschland",
+      description: "COREX DIGITAL entwickelt und automatisiert Geschäftssysteme für B2B-Unternehmen. Klare Deadlines, transparenter Prozess, echte Unterstützung. Aus Chaos wird ein funktionierendes System."
     },
     
     // Header
@@ -288,7 +288,7 @@ export const translations = {
       subtitle: "Antworten auf die wichtigsten Fragen zu unseren Dienstleistungen",
       items: [
         {
-          question: "Für welche Branchen bietet COREX Lösungen?",
+          question: "Für welche Branchen bietet COREX DIGITAL Lösungen?",
           answer: "Wir arbeiten mit B2B-Unternehmen aus verschiedenen Branchen, darunter Fertigung, Logistik, E-Commerce, Finanzdienstleistungen und Technologie. Unser Ansatz ist branchenübergreifend anwendbar."
         },
         {
@@ -296,7 +296,7 @@ export const translations = {
           answer: "Typischerweise 2-6 Wochen, abhängig von der Komplexität Ihres Projekts. Wir arbeiten in klaren Phasen und halten Sie über den Fortschritt auf dem Laufenden."
         },
         {
-          question: "Was unterscheidet COREX von anderen Anbietern?",
+          question: "Was unterscheidet COREX DIGITAL von anderen Anbietern?",
           answer: "Wir bieten keine Experimente, sondern bewährte Systeme. Klare Deadlines, transparente Prozesse und echte Unterstützung - nicht nur während der Entwicklung, sondern auch danach."
         },
         {
@@ -304,7 +304,7 @@ export const translations = {
           answer: "Wir definieren gemeinsam das System, bauen was wichtig ist, automatisieren den Ablauf und betreiben und unterstützen es kontinuierlich. Alles in einem Team, ohne externe Abhängigkeiten."
         },
         {
-          question: "Welche Technologien verwendet COREX?",
+          question: "Welche Technologien verwendet COREX DIGITAL?",
           answer: "Wir wählen die Technologien basierend auf Ihren Anforderungen aus. Unser Fokus liegt auf bewährten, stabilen Lösungen, die langfristig funktionieren."
         },
         {
@@ -316,9 +316,9 @@ export const translations = {
     
     // About (aligned with German version)
     about: {
-      title: "About COREX",
+      title: "About COREX DIGITAL",
       subtitle: "From chaos to systems that work.",
-      paragraph1: "COREX is an IT company specializing in website development, project development, project management, automation, and support. We work with B2B companies to develop, manage, automate, and support their digital systems—all in one team, with clear deadlines and transparent processes.",
+      paragraph1: "COREX DIGITAL is an IT company specializing in website development, project development, project management, automation, and support. We work with B2B companies to develop, manage, automate, and support their digital systems—all in one team, with clear deadlines and transparent processes.",
       paragraph2: "No experiments, no hype. We deliver proven solutions for companies that need stability and long-term support.",
       contact: "Contact",
       email: "Email",
@@ -352,8 +352,8 @@ export const translations = {
   
   de: {
     seo: {
-      title: "COREX - Systementwicklung & Automatisierung für B2B | Deutschland",
-      description: "COREX entwickelt und automatisiert Geschäftssysteme für B2B-Unternehmen. Klare Deadlines, transparenter Prozess, echte Unterstützung. Aus Chaos wird ein funktionierendes System."
+      title: "COREX DIGITAL - Systementwicklung & Automatisierung für B2B | Deutschland",
+      description: "COREX DIGITAL entwickelt und automatisiert Geschäftssysteme für B2B-Unternehmen. Klare Deadlines, transparenter Prozess, echte Unterstützung. Aus Chaos wird ein funktionierendes System."
     },
     header: {
       howItWorks: "Wie es funktioniert",
@@ -420,18 +420,18 @@ export const translations = {
       title: "Häufig gestellte Fragen",
       subtitle: "Antworten auf die wichtigsten Fragen zu unseren Dienstleistungen",
       items: [
-        { question: "Für welche Branchen bietet COREX Lösungen?", answer: "Wir arbeiten mit B2B-Unternehmen aus verschiedenen Branchen, darunter Fertigung, Logistik, E-Commerce, Finanzdienstleistungen und Technologie. Unser Ansatz ist branchenübergreifend anwendbar." },
+        { question: "Für welche Branchen bietet COREX DIGITAL Lösungen?", answer: "Wir arbeiten mit B2B-Unternehmen aus verschiedenen Branchen, darunter Fertigung, Logistik, E-Commerce, Finanzdienstleistungen und Technologie. Unser Ansatz ist branchenübergreifend anwendbar." },
         { question: "Wie lange dauert die Implementierung eines Systems?", answer: "Typischerweise 2-6 Wochen, abhängig von der Komplexität Ihres Projekts. Wir arbeiten in klaren Phasen und halten Sie über den Fortschritt auf dem Laufenden." },
-        { question: "Was unterscheidet COREX von anderen Anbietern?", answer: "Wir bieten keine Experimente, sondern bewährte Systeme. Klare Deadlines, transparente Prozesse und echte Unterstützung - nicht nur während der Entwicklung, sondern auch danach." },
+        { question: "Was unterscheidet COREX DIGITAL von anderen Anbietern?", answer: "Wir bieten keine Experimente, sondern bewährte Systeme. Klare Deadlines, transparente Prozesse und echte Unterstützung - nicht nur während der Entwicklung, sondern auch danach." },
         { question: "Wie funktioniert die Zusammenarbeit?", answer: "Wir definieren gemeinsam das System, bauen was wichtig ist, automatisieren den Ablauf und betreiben und unterstützen es kontinuierlich. Alles in einem Team, ohne externe Abhängigkeiten." },
-        { question: "Welche Technologien verwendet COREX?", answer: "Wir wählen die Technologien basierend auf Ihren Anforderungen aus. Unser Fokus liegt auf bewährten, stabilen Lösungen, die langfristig funktionieren." },
+        { question: "Welche Technologien verwendet COREX DIGITAL?", answer: "Wir wählen die Technologien basierend auf Ihren Anforderungen aus. Unser Fokus liegt auf bewährten, stabilen Lösungen, die langfristig funktionieren." },
         { question: "Gibt es Support nach der Implementierung?", answer: "Ja, wir bieten kontinuierlichen Support mit einer durchschnittlichen Antwortzeit von 24 Stunden. Wir betreiben und unterstützen die Systeme langfristig." }
       ]
     },
     about: {
-      title: "Über COREX",
+      title: "Über COREX DIGITAL",
       subtitle: "Aus Chaos werden Systeme, die funktionieren.",
-      paragraph1: "COREX ist ein IT-Unternehmen, das sich auf Website-Entwicklung, Projektentwicklung, Projektmanagement, Automatisierung und Support spezialisiert. Wir arbeiten mit B2B-Unternehmen zusammen, um ihre digitalen Systeme zu entwickeln, zu verwalten, zu automatisieren und zu unterstützen — alles in einem Team, mit klaren Deadlines und transparenten Prozessen.",
+      paragraph1: "COREX DIGITAL ist ein IT-Unternehmen, das sich auf Website-Entwicklung, Projektentwicklung, Projektmanagement, Automatisierung und Support spezialisiert. Wir arbeiten mit B2B-Unternehmen zusammen, um ihre digitalen Systeme zu entwickeln, zu verwalten, zu automatisieren und zu unterstützen — alles in einem Team, mit klaren Deadlines und transparenten Prozessen.",
       paragraph2: "Keine Experimente, kein Hype. Wir liefern bewährte Lösungen für Unternehmen, die Stabilität und langfristige Unterstützung brauchen.",
       contact: "Kontakt",
       email: "E-Mail",

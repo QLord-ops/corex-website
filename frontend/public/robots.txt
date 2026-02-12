@@ -1,24 +1,22 @@
-# robots.txt для corex.de
-# SEO оптимизация для немецкого B2B рынка
+# robots.txt for corexdigital.de
+# Technical SEO optimization for B2B market
 
 User-agent: *
 Allow: /
 
-# Запретить индексацию служебных файлов
+# Disallow private and service routes
 Disallow: /api/
 Disallow: /admin/
+Disallow: /builder/
+Disallow: /builder/*
 Disallow: /*.json$
 Disallow: /_next/
 Disallow: /static/
 
-# Разрешить индексацию важных страниц
+# Allow public pages
 Allow: /
-Allow: /kontakt
-Allow: /ueber-uns
-Allow: /leistungen
-
-# Crawl-delay для вежливого сканирования
-Crawl-delay: 1
+Allow: /consultation
+Allow: /s/
 
 # Sitemap
-Sitemap: https://corex.de/sitemap.xml
+Sitemap: https://corexdigital.de/sitemap.xml

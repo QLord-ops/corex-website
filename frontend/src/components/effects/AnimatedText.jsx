@@ -1,6 +1,17 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 
+// Detect mobile and reduced motion
+const isMobile = () => {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
+
+const prefersReducedMotion = () => {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+};
+
 export const AnimatedText = ({ 
   children, 
   className = '', 
@@ -10,13 +21,30 @@ export const AnimatedText = ({
   as = 'div'
 }) => {
   const ref = useRef(null);
+  const mobile = isMobile();
+  const reducedMotion = prefersReducedMotion();
   const isInView = useInView(ref, { 
     once, 
-    margin: "-10% 0px -10% 0px",
-    amount: 0.3
+    margin: mobile ? "0px" : "-10% 0px -10% 0px",
+    amount: mobile ? 0.1 : 0.3
   });
   
   const MotionComponent = motion[as] || motion.div;
+  
+  // Simplified animation for mobile
+  if (mobile || reducedMotion) {
+    return (
+      <MotionComponent
+        ref={ref}
+        className={className}
+        initial={false}
+        animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+        transition={{ duration: 0.3, delay }}
+      >
+        {children}
+      </MotionComponent>
+    );
+  }
   
   return (
     <MotionComponent
@@ -41,7 +69,19 @@ export const AnimatedLine = ({
   direction = 'horizontal'
 }) => {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-10%" });
+  const mobile = isMobile();
+  const reducedMotion = prefersReducedMotion();
+  const isInView = useInView(ref, { once: true, margin: mobile ? "0px" : "-10%" });
+  
+  if (mobile || reducedMotion) {
+    return (
+      <div
+        ref={ref}
+        className={`bg-primary/30 ${className}`}
+        style={{ opacity: isInView ? 1 : 0, transition: 'opacity 0.3s' }}
+      />
+    );
+  }
   
   return (
     <motion.div
@@ -73,9 +113,20 @@ export const StaggeredText = ({
   initialDelay = 0
 }) => {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-10%" });
+  const mobile = isMobile();
+  const reducedMotion = prefersReducedMotion();
+  const isInView = useInView(ref, { once: true, margin: mobile ? "0px" : "-10%" });
   
   const words = text.split(' ');
+  
+  // Simplified for mobile - no stagger
+  if (mobile || reducedMotion) {
+    return (
+      <div ref={ref} className={className} style={{ opacity: isInView ? 1 : 0, transition: 'opacity 0.3s' }}>
+        {text}
+      </div>
+    );
+  }
   
   return (
     <div ref={ref} className={className}>

@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
 import { SceneEntry } from './scenes/SceneEntry';
 import { ScenePain } from './scenes/ScenePain';
@@ -13,6 +13,17 @@ import { LivingSystemBackground } from './effects/LivingSystemBackground';
 import { ProgressIndicator } from './effects/ProgressIndicator';
 import { Header } from './Header';
 
+// Detect mobile and reduced motion preference
+const isMobile = () => {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
+
+const prefersReducedMotion = () => {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+};
+
 export const ScrollExperience = () => {
   const containerRef = useRef(null);
   const [currentScene, setCurrentScene] = useState(0);
@@ -20,25 +31,27 @@ export const ScrollExperience = () => {
   const lastScrollTime = useRef(Date.now());
   const scrollVelocity = useMotionValue(0);
   
+  const mobile = isMobile();
+  const reducedMotion = prefersReducedMotion();
+  
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"]
   });
   
+  // Reduced animation complexity for mobile
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 30,
-    damping: 30,
-    restDelta: 0.001
+    stiffness: mobile ? 50 : 30,
+    damping: mobile ? 40 : 30,
+    restDelta: mobile ? 0.01 : 0.001
   });
   
-  // Smooth scroll velocity with decay
   const smoothScrollVelocity = useSpring(scrollVelocity, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001
+    stiffness: mobile ? 150 : 100,
+    damping: mobile ? 40 : 30,
+    restDelta: mobile ? 0.01 : 0.001
   });
   
-  // Track scroll velocity
   useEffect(() => {
     let rafId;
     let decayInterval;
@@ -49,23 +62,21 @@ export const ScrollExperience = () => {
       const deltaY = currentY - lastScrollY.current;
       const deltaTime = Math.max(currentTime - lastScrollTime.current, 1);
       
-      // Calculate velocity (pixels per millisecond, scaled)
-      const velocity = (deltaY / deltaTime) * 16; // Normalize to ~60fps
+      const velocity = (deltaY / deltaTime) * 16;
       scrollVelocity.set(velocity);
       
       lastScrollY.current = currentY;
       lastScrollTime.current = currentTime;
     };
     
-    // Decay velocity when not scrolling
+    // Throttle decay interval on mobile
     decayInterval = setInterval(() => {
       const timeSinceScroll = Date.now() - lastScrollTime.current;
       if (timeSinceScroll > 100) {
-        // Gradually decay velocity
         const currentVel = scrollVelocity.get();
         scrollVelocity.set(currentVel * 0.9);
       }
-    }, 50);
+    }, mobile ? 100 : 50);
     
     window.addEventListener('scroll', handleScroll, { passive: true });
     
@@ -74,9 +85,8 @@ export const ScrollExperience = () => {
       clearInterval(decayInterval);
       if (rafId) cancelAnimationFrame(rafId);
     };
-  }, [scrollVelocity]);
+  }, [scrollVelocity, mobile]);
   
-  // Track current scene for progress indicator (9 scenes)
   useEffect(() => {
     const unsubscribe = scrollYProgress.on('change', (value) => {
       const sceneIndex = Math.floor(value * 9);
@@ -89,18 +99,18 @@ export const ScrollExperience = () => {
     <div 
       ref={containerRef}
       className="relative bg-background min-h-[600vh]"
+      style={{ 
+        willChange: mobile ? 'auto' : 'transform',
+        transform: 'translateZ(0)' // GPU acceleration
+      }}
     >
-      {/* Header with COREX branding and navigation */}
       <Header />
       
-      {/* Fixed background layer - THE LIVING SYSTEM */}
       <div className="fixed inset-0 z-0">
         <LivingSystemBackground 
           progress={smoothProgress} 
           scrollVelocity={smoothScrollVelocity}
         />
-        
-        {/* Subtle vignette overlay */}
         <div 
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -109,10 +119,8 @@ export const ScrollExperience = () => {
         />
       </div>
       
-      {/* Progress indicator */}
-      <ProgressIndicator progress={smoothProgress} currentScene={currentScene} />
+      {!reducedMotion && <ProgressIndicator progress={smoothProgress} currentScene={currentScene} />}
       
-      {/* Scenes */}
       <div className="relative z-10">
         <SceneEntry />
         <ScenePain />
@@ -125,8 +133,7 @@ export const ScrollExperience = () => {
         <SceneAction />
       </div>
       
-      {/* Subtle noise overlay for texture */}
-      <div className="fixed inset-0 z-20 pointer-events-none noise-overlay" />
+      {!mobile && <div className="fixed inset-0 z-20 pointer-events-none noise-overlay" />}
     </div>
   );
 };

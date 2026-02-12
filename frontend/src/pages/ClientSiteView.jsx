@@ -226,7 +226,7 @@ export function ClientSiteView() {
       <header className="sticky top-0 z-10 border-b border-border/50 bg-background/80 backdrop-blur">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
-            COREX
+            COREX DIGITAL
           </Link>
           <span className="text-sm text-muted-foreground">{site.name}</span>
         </div>
