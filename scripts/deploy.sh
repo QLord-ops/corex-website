@@ -16,7 +16,7 @@ cd "$REPO_ROOT/frontend"
 rm -rf build node_modules/.cache 2>/dev/null || true
 npm ci --no-audit --no-fund 2>/dev/null || npm install --no-audit --no-fund
 export REACT_APP_API_URL=https://corexdigital.de
-export NEXT_PUBLIC_BOT_API_URL=https://corexdigital.de
+export REACT_APP_BOT_API_URL=https://corexdigital.de
 npm run build
 # Verify build was created
 if [ ! -f "build/index.html" ]; then

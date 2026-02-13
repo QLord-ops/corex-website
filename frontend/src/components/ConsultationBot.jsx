@@ -10,12 +10,17 @@ import { getConsultantResponse, getConsultantResponseAIFormat } from '@/data/sal
 import { getTimelineText } from '@/data/salesConsultant';
 
 // Get API base URL from environment variable
-// Production: uses NEXT_PUBLIC_BOT_API_URL
+// Production: uses REACT_APP_BOT_API_URL or REACT_APP_API_URL
 // Development: falls back to localhost:8000
 const getBotApiUrl = () => {
-  // Check for production environment variable first
-  if (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_BOT_API_URL) {
-    const url = process.env.NEXT_PUBLIC_BOT_API_URL.replace(/\/$/, '');
+  // Check for bot-specific API URL first (REACT_APP_BOT_API_URL)
+  if (typeof process !== 'undefined' && process.env?.REACT_APP_BOT_API_URL) {
+    const url = process.env.REACT_APP_BOT_API_URL.replace(/\/$/, '');
+    return url || null;
+  }
+  // Fallback to general API URL (REACT_APP_API_URL)
+  if (typeof process !== 'undefined' && process.env?.REACT_APP_API_URL) {
+    const url = process.env.REACT_APP_API_URL.replace(/\/$/, '');
     return url || null;
   }
   // Development fallback: use localhost if running locally
@@ -428,7 +433,7 @@ export const ConsultationBot = () => {
               Bot API URL is not configured
             </h2>
             <p className="text-scene-small text-muted-foreground">
-              Please set NEXT_PUBLIC_BOT_API_URL environment variable.
+              Please set REACT_APP_BOT_API_URL or REACT_APP_API_URL environment variable.
             </p>
           </motion.div>
         </div>

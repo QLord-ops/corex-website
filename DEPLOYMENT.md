@@ -43,7 +43,7 @@ pm2 startup
 ```bash
 cd /var/www/corex-website/frontend
 npm ci
-REACT_APP_API_URL=https://corexdigital.de npm run build
+REACT_APP_API_URL=https://corexdigital.de REACT_APP_BOT_API_URL=https://corexdigital.de npm run build
 ```
 
 ### 5. Nginx
@@ -75,7 +75,7 @@ Or manually:
 ```bash
 cd /var/www/corex-website
 git pull
-cd frontend && npm ci && REACT_APP_API_URL=https://corexdigital.de npm run build
+cd frontend && npm ci && REACT_APP_API_URL=https://corexdigital.de REACT_APP_BOT_API_URL=https://corexdigital.de npm run build
 cd ../backend && pm2 restart corex-backend --update-env
 pm2 save
 ```
@@ -90,4 +90,4 @@ pm2 save
 ## Environment
 
 - Backend `.env` must include `OPENAI_API_KEY` for Project Check AI. If missing, regex fallback is used.
-- Frontend build uses `REACT_APP_API_URL=https://corexdigital.de` so API calls go to the same domain.
+- Frontend build uses `REACT_APP_API_URL=https://corexdigital.de` and `REACT_APP_BOT_API_URL=https://corexdigital.de` so API calls go to the same domain.

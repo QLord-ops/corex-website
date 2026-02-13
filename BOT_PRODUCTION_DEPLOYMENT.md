@@ -87,10 +87,10 @@ To verify client-side session persistence:
 Set during build time (not runtime):
 
 ```bash
-NEXT_PUBLIC_BOT_API_URL=https://bot.yourdomain.com
+REACT_APP_BOT_API_URL=https://bot.yourdomain.com
 ```
 
-Or for React apps (current setup):
+Or fallback to general API URL:
 ```bash
 REACT_APP_API_URL=https://bot.yourdomain.com
 ```
@@ -99,7 +99,7 @@ REACT_APP_API_URL=https://bot.yourdomain.com
 
 ```bash
 cd frontend
-NEXT_PUBLIC_BOT_API_URL=https://bot.yourdomain.com npm run build
+REACT_APP_BOT_API_URL=https://bot.yourdomain.com npm run build
 ```
 
 ### Post-Deployment Checks
@@ -270,7 +270,7 @@ stats = {
 - [ ] `BOOK_CALL_URL` set (if using)
 
 ### Frontend ENV Checklist:
-- [ ] `NEXT_PUBLIC_BOT_API_URL` set to bot service URL
+- [ ] `REACT_APP_BOT_API_URL` set to bot service URL (or `REACT_APP_API_URL` as fallback)
 - [ ] Build completed successfully
 - [ ] No console errors
 
