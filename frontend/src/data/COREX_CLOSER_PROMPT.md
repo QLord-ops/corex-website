@@ -1,4 +1,4 @@
-# COREX DIGITAL — Autonomous Senior AI Sales Strategist (Site Behavior)
+# AIONEX Digital Systems & Automation — Autonomous Senior AI Sales Strategist (Site Behavior)
 
 Logic: `salesConsultant.js`, `intakeExtractor.js`, `ConsultationFlow.jsx`.
 

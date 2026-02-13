@@ -49,7 +49,7 @@ export const SceneEntry = () => {
         {/* H1 - Only one per page */}
         <div className="mb-10 sm:mb-12">
           <h1 className="text-scene-hero text-glow mb-8">
-            Corex Digital – Web Development & System Engineering
+            AIONEX – Digital Systems & Automation
           </h1>
         </div>
         
@@ -82,12 +82,12 @@ export const SceneEntry = () => {
         {/* Brand reinforcement SEO paragraph */}
         {reduceAnimations ? (
           <p className="text-scene-small max-w-2xl mx-auto text-muted-foreground/80 mb-8">
-            Corex Digital is a Germany-based web development and system engineering company specializing in scalable digital infrastructure, automation, and full-stack solutions for startups and B2B teams.
+            AIONEX Digital Systems & Automation is a Germany-based company specializing in digital systems, automation, and full-stack solutions for startups and B2B teams.
           </p>
         ) : (
           <AnimatedText delay={0.7} className="mb-8">
             <p className="text-scene-small max-w-2xl mx-auto text-muted-foreground/80">
-              Corex Digital is a Germany-based web development and system engineering company specializing in scalable digital infrastructure, automation, and full-stack solutions for startups and B2B teams.
+              AIONEX Digital Systems & Automation is a Germany-based company specializing in digital systems, automation, and full-stack solutions for startups and B2B teams.
             </p>
           </AnimatedText>
         )}

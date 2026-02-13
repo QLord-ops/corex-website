@@ -6,8 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { consultationCopy, getRecommendedPackage, reformulateForBrief } from '@/data/consultationCopy';
 import { extractIntake } from '@/data/intakeExtractor';
-import { getConsultantResponse, getConsultantResponseAIFormat, getLeadPayloadForWebhook } from '@/data/salesConsultant';
-import { apiPost } from '@/lib/api';
+import { getConsultantResponse, getConsultantResponseAIFormat, getLeadPayloadForWebhook, getTimelineText } from '@/data/salesConsultant';
+import { apiPost, apiPostWithResponse } from '@/lib/api';
 import { ArrowLeft, FileText, Send, Calendar, Loader2 } from 'lucide-react';
 
 // Critical first: goal → website_type (and pages) → budget_range → timeline; then language, business_type, city; then optional.
@@ -108,7 +108,13 @@ export function ConsultationFlow() {
   const [wizardAnswer, setWizardAnswer] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
   const [extractError, setExtractError] = useState(null);
-  const textInputRef = useRef(null);
+  const [stepTextValue, setStepTextValue] = useState('');
+  const [lastAnalyzedMessage, setLastAnalyzedMessage] = useState('');
+  const [proposalText, setProposalText] = useState(null);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+  const [proposalFetched, setProposalFetched] = useState(false);
   const leadSentRef = useRef(false);
 
   const lang = intake.language || 'en';
@@ -122,21 +128,21 @@ export function ConsultationFlow() {
   const applyAIResult = (nextIntake, missing_required) => {
     const ai = getConsultantResponseAIFormat(nextIntake, missing_required);
     setAiResponse(ai);
-    setMode(ai.mode);
+    setMode('result');
     setIntake(nextIntake);
     setMissingRequired(ai.missing_required || []);
     setAiMode(true);
-    if (ai.mode === 'result') {
-      setScreen('result');
-    } else {
-      setScreen('ai-question');
-    }
-    console.log('AI MODE:', ai.mode, ai.missing_required, ai.timeline);
+    setProposalText(null);
+    setProposalFetched(false);
+    setChatMessages([]);
+    setChatInput('');
+    setScreen('result');
   };
 
   const handleAnalyze = () => {
     const msg = userMessage.trim();
     if (!msg) return;
+    setLastAnalyzedMessage(msg);
     setAnalyzing(true);
     setExtractError(null);
     apiPost('/extract', { currentIntake: intake, userMessage: msg })
@@ -249,12 +255,30 @@ export function ConsultationFlow() {
   const recommendationForLead = consultantRecommendation;
   const showingFinalRecommendation = screen === 'result' && (aiResponse?.mode === 'result' || consultantRecommendation);
 
+  // Sync step text field when moving to a new question (so Next button has correct value and input is controlled).
+  useEffect(() => {
+    if (currentField === 'business_type') setStepTextValue(intake.business_type || '');
+    else if (currentField === 'city') setStepTextValue(intake.city || '');
+    else if (currentField === 'references') setStepTextValue(intake.notes || (intake.references?.[0]) || '');
+    else setStepTextValue('');
+  }, [currentField, intake.business_type, intake.city, intake.notes, intake.references]);
+
   useEffect(() => {
     if (!showingFinalRecommendation || !recommendationForLead || leadSentRef.current) return;
     leadSentRef.current = true;
     const payload = getLeadPayloadForWebhook(intake, recommendationForLead);
     apiPost('/lead', payload).catch(() => {});
   }, [showingFinalRecommendation, recommendationForLead, intake]);
+
+  // Fetch AI-generated proposal when on result screen (once per result).
+  useEffect(() => {
+    if (screen !== 'result' || !intake || proposalFetched) return;
+    setProposalFetched(true);
+    const lang = intake.language || 'en';
+    apiPost('/project-check/proposal', { intake, language: lang })
+      .then(({ proposalText: text }) => { if (text) setProposalText(text); })
+      .catch(() => setProposalFetched(true));
+  }, [screen, intake, proposalFetched]);
 
   const packageKey = consultantRecommendation?.type === 'recommendation' ? consultantRecommendation.package : (aiResponse?.package ? aiResponse.package.toLowerCase() : null);
   const pkg = packageKey && t.packages?.[packageKey];
@@ -275,7 +299,7 @@ export function ConsultationFlow() {
     [labels.content, intake.content_ready != null ? (intake.content_ready ? (lang === 'de' ? 'Ja' : 'Yes') : (lang === 'de' ? 'Nein' : 'No')) : '–'],
     [labels.languages, intake.languages_needed?.length ? intake.languages_needed.join(', ') : '–'],
     [labels.integrations, Array.isArray(intake.integrations) && intake.integrations.length ? intake.integrations.join(', ') : '–'],
-    [labels.timeline, intake.timeline || t.timelineStandard],
+    [labels.timeline, (intake.timeline && getTimelineText(intake.timeline, lang)) || t.timelineStandard],
     [labels.references, reformulateForBrief('references', intake.notes, lang)],
   ];
 
@@ -285,7 +309,7 @@ export function ConsultationFlow() {
         <header className="border-b border-border/50">
           <div className="max-w-xl mx-auto px-4 py-4">
             <Link to="/" className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
-              <ArrowLeft className="w-4 h-4" /> COREX DIGITAL
+              <ArrowLeft className="w-4 h-4" /> AIONEX
             </Link>
           </div>
         </header>
@@ -375,11 +399,19 @@ export function ConsultationFlow() {
         <header className="border-b border-border/50">
           <div className="max-w-xl mx-auto px-4 py-4 flex items-center justify-between">
             <Link to="/" className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
-              <ArrowLeft className="w-4 h-4" /> COREX DIGITAL
+              <ArrowLeft className="w-4 h-4" /> AIONEX
             </Link>
           </div>
         </header>
         <main className="flex-1 max-w-xl mx-auto w-full px-4 py-8 space-y-8 pb-12">
+          {(lastAnalyzedMessage || userMessage).trim() && (
+            <div>
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                {t.yourDescription ?? 'Your description'}
+              </h2>
+              <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{(lastAnalyzedMessage || userMessage).trim()}</p>
+            </div>
+          )}
           {(aiResponse?.understood || consultantRecommendation?.summaryUnderstood) && (
             <div>
               <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
@@ -442,10 +474,87 @@ export function ConsultationFlow() {
           <div>
             <h2 className="text-xl font-semibold text-foreground mb-3">{t.commercialTitle}</h2>
             <div className="rounded-lg border border-border/50 bg-muted/20 p-4 space-y-2">
-              <p className="font-medium text-foreground">{t.recommendedPackage}: {aiResponse?.package ?? consultantRecommendation?.packageName ?? pkg?.name}</p>
-              {justification && <p className="text-sm text-muted-foreground">{justification}</p>}
-              <p className="text-sm">{t.estimatedInvestment}: {estimatedInvestment}</p>
-              <p className="text-sm">{t.estimatedTimeline}: {estimatedTimeline}</p>
+              {proposalText ? (
+                <>
+                  <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{proposalText}</p>
+                  <p className="text-sm text-muted-foreground pt-2">{t.recommendedPackage}: {aiResponse?.package ?? consultantRecommendation?.packageName ?? pkg?.name} · {t.estimatedInvestment}: {estimatedInvestment} · {t.estimatedTimeline}: {estimatedTimeline}</p>
+                </>
+              ) : (
+                <>
+                  <p className="font-medium text-foreground">{t.recommendedPackage}: {aiResponse?.package ?? consultantRecommendation?.packageName ?? pkg?.name}</p>
+                  {justification && <p className="text-sm text-muted-foreground">{justification}</p>}
+                  <p className="text-sm">{t.estimatedInvestment}: {estimatedInvestment}</p>
+                  <p className="text-sm">{t.estimatedTimeline}: {estimatedTimeline}</p>
+                </>
+              )}
+            </div>
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-foreground mb-3">{t.continueChat ?? 'Continue conversation'}</h2>
+            <p className="text-sm text-muted-foreground mb-3">
+              {lang === 'ru' ? 'Задайте вопросы по проекту, срокам или бюджету — бот ответит в стиле чата.' : lang === 'de' ? 'Stellen Sie Fragen zum Projekt, Zeitrahmen oder Budget — der Bot antwortet im Chat.' : 'Ask questions about the project, timeline or budget — the bot replies in chat.'}
+            </p>
+            <div className="rounded-lg border border-border/50 bg-muted/20 overflow-hidden">
+              <div className="max-h-64 overflow-y-auto p-3 space-y-3">
+                {chatMessages.length === 0 && (
+                  <p className="text-xs text-muted-foreground">{lang === 'ru' ? 'Напишите сообщение ниже.' : lang === 'de' ? 'Schreiben Sie unten eine Nachricht.' : 'Type a message below.'}</p>
+                )}
+                {chatMessages.map((m, i) => (
+                  <div key={i} className={m.role === 'user' ? 'text-right' : 'text-left'}>
+                    <span className={`inline-block max-w-[85%] rounded-lg px-3 py-2 text-sm ${m.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'}`}>
+                      {m.content}
+                    </span>
+                  </div>
+                ))}
+                {chatLoading && (
+                  <div className="text-left">
+                    <span className="inline-block rounded-lg px-3 py-2 text-sm bg-muted text-muted-foreground">…</span>
+                  </div>
+                )}
+              </div>
+              <form
+                className="flex gap-2 p-3 border-t border-border/50"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const msg = chatInput.trim();
+                  if (!msg || chatLoading) return;
+                  setChatMessages((prev) => [...prev, { role: 'user', content: msg }]);
+                  setChatInput('');
+                  setChatLoading(true);
+                  apiPostWithResponse('/project-check/chat', { intake, messages: [...chatMessages, { role: 'user', content: msg }], newMessage: msg })
+                    .then(({ status, data }) => {
+                      if (status === 503) {
+                        setChatMessages((prev) => [...prev, { role: 'assistant', content: lang === 'ru' ? 'AI временно недоступен.' : lang === 'de' ? 'KI ist vorübergehend nicht verfügbar.' : 'AI is temporarily unavailable.' }]);
+                        return;
+                      }
+                      if (status === 502 || status === 500) {
+                        setChatMessages((prev) => [...prev, { role: 'assistant', content: lang === 'ru' ? 'Ошибка сервера. Попробуйте ещё раз.' : lang === 'de' ? 'Serverfehler. Bitte erneut versuchen.' : 'Server error. Try again.' }]);
+                        return;
+                      }
+                      if (data?.assistantMessage != null && data.assistantMessage !== '') {
+                        setChatMessages((prev) => [...prev, { role: 'assistant', content: data.assistantMessage }]);
+                      } else {
+                        setChatMessages((prev) => [...prev, { role: 'assistant', content: lang === 'ru' ? 'Ответ пуст. Попробуйте ещё раз.' : 'Empty response. Try again.' }]);
+                      }
+                    })
+                    .catch(() => {
+                      setChatMessages((prev) => [...prev, { role: 'assistant', content: lang === 'ru' ? 'Ошибка сервера. Попробуйте ещё раз.' : 'Server error. Try again.' }]);
+                    })
+                    .finally(() => setChatLoading(false));
+                }}
+              >
+                <Textarea
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  placeholder={t.chatPlaceholder ?? 'Type a message…'}
+                  rows={2}
+                  className="resize-none flex-1 min-h-0"
+                  disabled={chatLoading}
+                />
+                <Button type="submit" disabled={chatLoading || !chatInput.trim()}>
+                  {t.chatSend ?? 'Send'}
+                </Button>
+              </form>
             </div>
           </div>
           <div>
@@ -530,16 +639,16 @@ export function ConsultationFlow() {
                 ) : (
                   currentField === 'references' ? (
                     <Textarea
-                      ref={textInputRef}
-                      defaultValue={intake.notes || (intake.references?.[0]) || ''}
+                      value={stepTextValue}
+                      onChange={(e) => setStepTextValue(e.target.value)}
                       placeholder={currentQuestion.placeholder}
                       rows={4}
                       className="resize-none"
                     />
                   ) : (
                     <Input
-                      ref={textInputRef}
-                      defaultValue={currentField === 'business_type' ? intake.business_type : intake.city}
+                      value={stepTextValue}
+                      onChange={(e) => setStepTextValue(e.target.value)}
                       placeholder={currentQuestion.placeholder}
                     />
                   )
@@ -547,12 +656,9 @@ export function ConsultationFlow() {
                 {currentQuestion.options ? null : (
                   <Button
                     onClick={() => {
-                      const v = textInputRef.current?.value?.trim() ?? '';
+                      const v = stepTextValue.trim();
                       if (currentField !== 'references' && !v) return;
                       const newIntake = applyFieldValue(intake, currentField, v);
-                      console.log('NEXT CLICK', { step: stepIndex, currentField, value: v });
-                      console.log('NEXT STATE BEFORE', intake);
-                      console.log('NEXT STATE AFTER', newIntake);
                       setIntake(newIntake);
                       goToNextOrResult(newIntake);
                     }}

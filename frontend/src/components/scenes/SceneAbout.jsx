@@ -9,7 +9,7 @@ export const SceneAbout = () => {
   const isInView = useInView(sectionRef, { once: true, margin: '-10%' });
 
   const about = translations[language]?.about || {};
-  const title = about.title ?? 'About COREX DIGITAL';
+  const title = about.title ?? 'About AIONEX';
   const subtitle = about.subtitle ?? 'We turn chaos into systems that work.';
   const paragraph1 = about.paragraph1 ?? '';
   const paragraph2 = about.paragraph2 ?? '';

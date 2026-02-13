@@ -1,22 +1,12 @@
-# robots.txt for corexdigital.de
-# Technical SEO optimization for B2B market
-
 User-agent: *
 Allow: /
-
-# Disallow private and service routes
+Allow: /leistungen
+Allow: /ueber-uns
+Allow: /kontakt
+Allow: /consultation
+Allow: /en
 Disallow: /api/
 Disallow: /admin/
 Disallow: /builder/
-Disallow: /builder/*
-Disallow: /*.json$
-Disallow: /_next/
-Disallow: /static/
 
-# Allow public pages
-Allow: /
-Allow: /consultation
-Allow: /s/
-
-# Sitemap
 Sitemap: https://corexdigital.de/sitemap.xml

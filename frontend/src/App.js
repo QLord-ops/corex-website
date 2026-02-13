@@ -5,6 +5,7 @@ import { BuilderDashboard } from "./pages/BuilderDashboard";
 import { BuilderEditor } from "./pages/BuilderEditor";
 import { ClientSiteView } from "./pages/ClientSiteView";
 import { ConsultationFlow } from "./pages/ConsultationFlow";
+import { ConsultationRedirect } from "./components/ConsultationRedirect";
 
 function MainSite() {
   return (
@@ -22,10 +23,17 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<MainSite />} />
+        <Route path="/leistungen" element={<MainSite />} />
+        <Route path="/ueber-uns" element={<MainSite />} />
+        <Route path="/kontakt" element={<MainSite />} />
+        <Route path="/en" element={<MainSite />} />
+        <Route path="/en/leistungen" element={<MainSite />} />
+        <Route path="/en/ueber-uns" element={<MainSite />} />
+        <Route path="/en/kontakt" element={<MainSite />} />
         <Route path="/builder" element={<BuilderDashboard />} />
         <Route path="/builder/sites/:siteId" element={<BuilderEditor />} />
         <Route path="/s/:slug" element={<ClientSiteView />} />
-        <Route path="/consultation" element={<ConsultationFlow />} />
+        <Route path="/consultation" element={<ConsultationRedirect />} />
       </Routes>
     </BrowserRouter>
   );

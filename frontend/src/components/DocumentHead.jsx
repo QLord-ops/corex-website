@@ -9,8 +9,8 @@ export const DocumentHead = () => {
   const { language } = useTranslation();
 
   useEffect(() => {
-    const baseTitle = 'Corex Digital – Web Development & System Engineering | Germany';
-    const baseDescription = 'Corex Digital develops scalable digital infrastructure, automation, and full-stack solutions for startups and B2B teams in Germany. Turn chaos into a working system.';
+    const baseTitle = 'AIONEX – Digital Systems & Automation | Germany';
+    const baseDescription = 'AIONEX Digital Systems & Automation develops and automates digital systems for startups and B2B teams in Germany. Turn chaos into a working system.';
     
     document.title = baseTitle;
     

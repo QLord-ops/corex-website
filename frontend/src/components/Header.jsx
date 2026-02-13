@@ -65,7 +65,7 @@ export const Header = () => {
             {/* Company Name - System Label Style */}
             <div className="flex-shrink-0">
               <span className="text-sm sm:text-base font-medium tracking-[0.25em] text-foreground/90">
-                COREX DIGITAL
+                AIONEX
               </span>
             </div>
             
@@ -91,13 +91,6 @@ export const Header = () => {
               >
                 {t('header.contact')}
               </button>
-              <span className="text-muted-foreground/30">·</span>
-              <Link
-                to="/consultation"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300"
-              >
-                {t('header.consultation')}
-              </Link>
               <span className="text-muted-foreground/30">·</span>
               <Link
                 to="/builder"
@@ -183,12 +176,6 @@ export const Header = () => {
               >
                 {t('header.contact')}
               </button>
-              <Link
-                to="/consultation"
-                className="block w-full text-left py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {t('header.consultation')}
-              </Link>
               <Link
                 to="/builder"
                 className="block w-full text-left py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"

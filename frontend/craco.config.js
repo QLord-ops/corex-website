@@ -48,6 +48,21 @@ const webpackConfig = {
     },
     configure: (webpackConfig) => {
 
+      // Exclude node_modules from source-map-loader to avoid ENOENT on packages without source maps (e.g. react-router-dom)
+      const rules = webpackConfig.module?.rules;
+      if (Array.isArray(rules)) {
+        rules.forEach((rule) => {
+          if (rule.use && Array.isArray(rule.use)) {
+            const hasSourceMapLoader = rule.use.some(
+              (u) => typeof u === 'object' && u?.loader?.includes?.('source-map-loader')
+            );
+            if (hasSourceMapLoader) {
+              rule.exclude = /node_modules/;
+            }
+          }
+        });
+      }
+
       // Add ignored patterns to reduce watched directories
         webpackConfig.watchOptions = {
           ...webpackConfig.watchOptions,

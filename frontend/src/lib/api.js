@@ -33,6 +33,13 @@ export const apiPost = (path, body) =>
   api(path, { method: 'POST', body: body ? JSON.stringify(body) : undefined }).then((r) =>
     r.status === 204 ? null : r.ok ? r.json() : Promise.reject(new Error(r.statusText))
   );
+
+/** Returns { status, data } so callers can handle 503 etc. without throwing. */
+export const apiPostWithResponse = (path, body) =>
+  api(path, { method: 'POST', body: body ? JSON.stringify(body) : undefined }).then(async (r) => {
+    const data = r.status === 204 ? null : await r.json().catch(() => ({}));
+    return { status: r.status, ok: r.ok, data };
+  });
 export const apiPut = (path, body) =>
   api(path, { method: 'PUT', body: body ? JSON.stringify(body) : undefined }).then((r) =>
     r.status === 204 ? null : r.ok ? r.json() : Promise.reject(new Error(r.statusText))

@@ -3,11 +3,10 @@ import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'fram
 import { SceneEntry } from './scenes/SceneEntry';
 import { Header } from './Header';
 import { ProgressIndicator } from './effects/ProgressIndicator';
-import { isMobile, shouldReduceAnimations } from '@/utils/device';
+import { shouldReduceAnimations } from '@/utils/device';
 
-// Lazy load heavy components - using named exports
+// Lazy load heavy components - same background on desktop and mobile
 const LivingSystemBackground = lazy(() => import('./effects/LivingSystemBackground').then(m => ({ default: m.LivingSystemBackground })));
-const LivingSystemBackgroundMobile = lazy(() => import('./effects/LivingSystemBackgroundMobile').then(m => ({ default: m.LivingSystemBackgroundMobile })));
 
 const ScenePain = lazy(() => import('./scenes/ScenePain').then(m => ({ default: m.ScenePain })));
 const SceneHow = lazy(() => import('./scenes/SceneHow').then(m => ({ default: m.SceneHow })));
@@ -17,13 +16,13 @@ const SceneFAQ = lazy(() => import('./scenes/SceneFAQ').then(m => ({ default: m.
 const SceneAbout = lazy(() => import('./scenes/SceneAbout').then(m => ({ default: m.SceneAbout })));
 const SceneTestimonials = lazy(() => import('./scenes/SceneTestimonials').then(m => ({ default: m.SceneTestimonials })));
 const SceneAction = lazy(() => import('./scenes/SceneAction').then(m => ({ default: m.SceneAction })));
+const ConsultationBot = lazy(() => import('./ConsultationBot').then(m => ({ default: m.ConsultationBot })));
 
 const LoadingPlaceholder = () => <div className="min-h-[100dvh]" />;
 
 export const ScrollExperience = () => {
   const containerRef = useRef(null);
   const [currentScene, setCurrentScene] = useState(0);
-  const [isMobileDevice, setIsMobileDevice] = useState(false);
   const [reduceAnimations, setReduceAnimations] = useState(false);
   const lastScrollY = useRef(0);
   const lastScrollTime = useRef(Date.now());
@@ -31,11 +30,9 @@ export const ScrollExperience = () => {
   
   useEffect(() => {
     try {
-      setIsMobileDevice(isMobile());
       setReduceAnimations(shouldReduceAnimations());
     } catch (error) {
       console.error('Error initializing device detection:', error);
-      setIsMobileDevice(false);
       setReduceAnimations(false);
     }
   }, []);
@@ -108,14 +105,10 @@ export const ScrollExperience = () => {
       
       <div className="fixed inset-0 z-0">
         <Suspense fallback={<div className="absolute inset-0 bg-background" />}>
-          {isMobileDevice ? (
-            <LivingSystemBackgroundMobile progress={smoothProgress} />
-          ) : (
-            <LivingSystemBackground 
-              progress={smoothProgress} 
-              scrollVelocity={smoothScrollVelocity}
-            />
-          )}
+          <LivingSystemBackground 
+            progress={smoothProgress} 
+            scrollVelocity={smoothScrollVelocity}
+          />
         </Suspense>
         <div 
           className="absolute inset-0 pointer-events-none"
@@ -139,6 +132,7 @@ export const ScrollExperience = () => {
           <SceneFAQ />
           <SceneAbout />
           <SceneTestimonials />
+          <ConsultationBot />
           <SceneAction />
         </Suspense>
       </div>

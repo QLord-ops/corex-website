@@ -1,5 +1,5 @@
 /**
- * COREX DIGITAL — Autonomous senior AI Sales Strategist.
+ * AIONEX Digital Systems & Automation — Autonomous senior AI Sales Strategist.
  * ABSOLUTE RULE: Explicit client-stated data ALWAYS overrides assumptions. Never override stated timeline, budget, integrations or scope.
  * NO STEP MODE: No wizard, no form follow-up, no sequential intake questions.
  * PROCESS: Extract facts → Classify complexity → Match package → Justify → Output recommendation → ONE CTA only.
@@ -141,7 +141,7 @@ function getPackage(intake) {
 }
 
 // STRICT TIMELINE PRESERVATION: output exactly as stated. Language matches intake (de/en/ru).
-function getTimelineText(timeline, lang) {
+export function getTimelineText(timeline, lang) {
   if (timeline == null || timeline === '') return null;
   const t = String(timeline);
   const isDe = lang === 'de';
