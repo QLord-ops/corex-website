@@ -14,6 +14,7 @@ echo "[deploy] Frontend: install and build..."
 cd "$REPO_ROOT/frontend"
 npm ci --no-audit --no-fund 2>/dev/null || npm install --no-audit --no-fund
 export REACT_APP_API_URL=https://corexdigital.de
+export NEXT_PUBLIC_BOT_API_URL=https://corexdigital.de
 npm run build
 
 echo "[deploy] Backend: install deps (optional, if needed)..."
