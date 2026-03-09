@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://aionex.de/sitemap.xml

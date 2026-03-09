@@ -484,6 +484,10 @@ class FlowParticle {
 
 export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
   const canvasRef = useRef(null);
+  const performanceRef = useRef({
+    lowMode: false,
+    frameIntervalMs: 16,
+  });
   const systemRef = useRef({
     nodes: [],
     particles: [],
@@ -498,19 +502,27 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
     currentLightness: 45,
     currentBgHue: 20,
     currentBgSaturation: 18,
-    currentBgLightness: 6
+    currentBgLightness: 6,
+    lastFrameTime: 0
   });
   
   const initSystem = useCallback((width, height) => {
     const system = systemRef.current;
+    const { lowMode } = performanceRef.current;
     system.nodes = [];
     system.particles = [];
     
-    const layers = [
-      { count: 45, connectionThreshold: 230 },
-      { count: 32, connectionThreshold: 200 },
-      { count: 20, connectionThreshold: 175 }
-    ];
+    const layers = lowMode
+      ? [
+          { count: 16, connectionThreshold: 160 },
+          { count: 10, connectionThreshold: 140 },
+          { count: 0, connectionThreshold: 0 }
+        ]
+      : [
+          { count: 45, connectionThreshold: 230 },
+          { count: 32, connectionThreshold: 200 },
+          { count: 20, connectionThreshold: 175 }
+        ];
     
     let nodeIndex = 0;
     const padding = 50;
@@ -566,10 +578,10 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
             if (Math.random() < prob) {
               node.connections.push(other);
               
-              if (Math.random() > 0.4) {
+              if (Math.random() > (lowMode ? 0.72 : 0.4)) {
                 system.particles.push(new FlowParticle(node, other, layerIndex));
               }
-              if (Math.random() > 0.55) {
+              if (Math.random() > (lowMode ? 0.8 : 0.55)) {
                 system.particles.push(new FlowParticle(other, node, layerIndex));
               }
             }
@@ -588,20 +600,43 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
     const ctx = canvas.getContext('2d');
     let animationId;
     
+    const detectLowPerformanceMode = () => {
+      const smallViewport = window.matchMedia('(max-width: 1024px)').matches;
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const lowMemory = typeof navigator !== 'undefined' && navigator.deviceMemory && navigator.deviceMemory <= 4;
+      const fewCores = typeof navigator !== 'undefined' && navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4;
+
+      return Boolean(smallViewport || reducedMotion || lowMemory || fewCores);
+    };
+
     const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const lowMode = detectLowPerformanceMode();
+      performanceRef.current.lowMode = lowMode;
+      performanceRef.current.frameIntervalMs = lowMode ? 33 : 16;
+
+      const dpr = lowMode
+        ? 1
+        : Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = window.innerWidth * dpr;
       canvas.height = window.innerHeight * dpr;
       canvas.style.width = window.innerWidth + 'px';
       canvas.style.height = window.innerHeight + 'px';
-      ctx.scale(dpr, dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       initSystem(window.innerWidth, window.innerHeight);
     };
     
     const draw = () => {
       const system = systemRef.current;
+      const { lowMode, frameIntervalMs } = performanceRef.current;
       const width = window.innerWidth;
       const height = window.innerHeight;
+      const nowFrame = performance.now();
+
+      if (nowFrame - system.lastFrameTime < frameIntervalMs) {
+        animationId = requestAnimationFrame(draw);
+        return;
+      }
+      system.lastFrameTime = nowFrame;
       
       if (!system.initialized) {
         initSystem(width, height);
@@ -651,15 +686,17 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
       ctx.fillRect(0, 0, width, height);
       
       // Subtle radial gradient for depth - less blur, more visible
-      const gradient = ctx.createRadialGradient(
-        width * 0.5, height * 0.5, 0,
-        width * 0.5, height * 0.5, Math.max(width, height) * 0.7
-      );
-      gradient.addColorStop(0, `hsla(${system.currentBgHue}, ${system.currentBgSaturation + 5}%, ${system.currentBgLightness + 3}%, 0.4)`);
-      gradient.addColorStop(0.6, `hsla(${system.currentBgHue}, ${system.currentBgSaturation}%, ${system.currentBgLightness}%, 0.15)`);
-      gradient.addColorStop(1, 'transparent');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, width, height);
+      if (!lowMode) {
+        const gradient = ctx.createRadialGradient(
+          width * 0.5, height * 0.5, 0,
+          width * 0.5, height * 0.5, Math.max(width, height) * 0.7
+        );
+        gradient.addColorStop(0, `hsla(${system.currentBgHue}, ${system.currentBgSaturation + 5}%, ${system.currentBgLightness + 3}%, 0.4)`);
+        gradient.addColorStop(0.6, `hsla(${system.currentBgHue}, ${system.currentBgSaturation}%, ${system.currentBgLightness}%, 0.15)`);
+        gradient.addColorStop(1, 'transparent');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+      }
       
       // Element colors
       const hue = system.currentHue;
@@ -692,14 +729,10 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
               const lineSat = sat * 0.85;
               const lineLight = light * 0.9;
               
-              // Stronger line gradient
-              const lineGradient = ctx.createLinearGradient(node.x, node.y, other.x, other.y);
-              lineGradient.addColorStop(0, `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity * 0.5})`);
-              lineGradient.addColorStop(0.5, `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity})`);
-              lineGradient.addColorStop(1, `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity * 0.5})`);
-              
               ctx.beginPath();
-              ctx.strokeStyle = lineGradient;
+              ctx.strokeStyle = lowMode
+                ? `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity * 0.7})`
+                : `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity})`;
               // Thicker lines for visibility
               ctx.lineWidth = 0.6 + layer * 0.2 + narrative.stability * 0.25;
               ctx.moveTo(node.x, node.y);
@@ -718,18 +751,18 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
             const particleSat = sat * 1.15;
             const particleLight = light * 1.25;
             
-            // Reduced glow blur, more solid
-            const glowSize = particle.size * (1.8 + glowIntensity);
-            const glowGrad = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, glowSize);
-            glowGrad.addColorStop(0, `hsla(${hue}, ${particleSat}%, ${particleLight}%, ${opacity * 0.5})`);
-            glowGrad.addColorStop(0.6, `hsla(${hue}, ${particleSat}%, ${particleLight}%, ${opacity * 0.2})`);
-            glowGrad.addColorStop(1, 'transparent');
-            ctx.beginPath();
-            ctx.fillStyle = glowGrad;
-            ctx.arc(pos.x, pos.y, glowSize, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Solid core
+            if (!lowMode) {
+              const glowSize = particle.size * (1.8 + glowIntensity);
+              const glowGrad = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, glowSize);
+              glowGrad.addColorStop(0, `hsla(${hue}, ${particleSat}%, ${particleLight}%, ${opacity * 0.5})`);
+              glowGrad.addColorStop(0.6, `hsla(${hue}, ${particleSat}%, ${particleLight}%, ${opacity * 0.2})`);
+              glowGrad.addColorStop(1, 'transparent');
+              ctx.beginPath();
+              ctx.fillStyle = glowGrad;
+              ctx.arc(pos.x, pos.y, glowSize, 0, Math.PI * 2);
+              ctx.fill();
+            }
+
             ctx.beginPath();
             ctx.fillStyle = `hsla(${hue}, ${particleSat}%, ${particleLight + 10}%, ${opacity})`;
             ctx.arc(pos.x, pos.y, particle.size, 0, Math.PI * 2);
@@ -745,17 +778,18 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
           const nodeSat = sat;
           const nodeLight = light;
           
-          // Reduced glow, more solid appearance
-          const glowSize = size * (2.2 + glowIntensity * 1.5);
-          const glowGradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, glowSize);
-          glowGradient.addColorStop(0, `hsla(${hue}, ${nodeSat}%, ${nodeLight}%, ${opacity * 0.4})`);
-          glowGradient.addColorStop(0.5, `hsla(${hue}, ${nodeSat}%, ${nodeLight}%, ${opacity * 0.15})`);
-          glowGradient.addColorStop(1, 'transparent');
-          
-          ctx.beginPath();
-          ctx.fillStyle = glowGradient;
-          ctx.arc(node.x, node.y, glowSize, 0, Math.PI * 2);
-          ctx.fill();
+          if (!lowMode) {
+            const glowSize = size * (2.2 + glowIntensity * 1.5);
+            const glowGradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, glowSize);
+            glowGradient.addColorStop(0, `hsla(${hue}, ${nodeSat}%, ${nodeLight}%, ${opacity * 0.4})`);
+            glowGradient.addColorStop(0.5, `hsla(${hue}, ${nodeSat}%, ${nodeLight}%, ${opacity * 0.15})`);
+            glowGradient.addColorStop(1, 'transparent');
+            
+            ctx.beginPath();
+            ctx.fillStyle = glowGradient;
+            ctx.arc(node.x, node.y, glowSize, 0, Math.PI * 2);
+            ctx.fill();
+          }
           
           // Solid node core
           ctx.beginPath();

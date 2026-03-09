@@ -1,17 +1,19 @@
 import { useRef } from 'react';
 import { motion, useInView, useScroll, useTransform } from 'framer-motion';
 import { AnimatedText } from '../effects/AnimatedText';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 const stats = [
-  { value: "+38%", label: "qualified leads", prefix: "", suffix: "" },
-  { value: "-42%", label: "manual operations", prefix: "", suffix: "" },
-  { value: "2-6", label: "weeks to launch", prefix: "", suffix: "" },
-  { value: "24h", label: "support response", prefix: "", suffix: "" }
+  { value: "+38%", labelKey: "sceneProof.stats.0" },
+  { value: "-29%", labelKey: "sceneProof.stats.1" },
+  { value: "2-6", labelKey: "sceneProof.stats.2" },
+  { value: "24h", labelKey: "sceneProof.stats.3" }
 ];
 
 const StatItem = ({ stat, index }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-10%" });
+  const { t } = useLanguage();
   
   return (
     <motion.div
@@ -38,12 +40,13 @@ const StatItem = ({ stat, index }) => {
       >
         {stat.value}
       </motion.div>
-      <div className="stat-label">{stat.label}</div>
+      <div className="stat-label">{t(stat.labelKey)}</div>
     </motion.div>
   );
 };
 
 export const SceneProof = () => {
+  const { t } = useLanguage();
   const sectionRef = useRef(null);
   const transitionRef = useRef(null);
   
@@ -61,11 +64,14 @@ export const SceneProof = () => {
       <div className="min-h-[30vh] sm:min-h-[40vh] flex items-end justify-center pb-8 sm:pb-12 px-4 sm:px-6">
         <AnimatedText className="text-center">
           <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground block mb-4">
-            The results
+            {t('sceneProof.intro')}
           </span>
           <h2 className="text-scene-body text-foreground/80">
-            Proven in real projects
+            {t('sceneProof.title')}
           </h2>
+          <p className="text-sm text-muted-foreground mt-3 max-w-xl mx-auto">
+            {t('sceneProof.subtitle')}
+          </p>
         </AnimatedText>
       </div>
       
@@ -119,7 +125,7 @@ export const SceneProof = () => {
         >
           <div className="w-16 h-px bg-border mx-auto mb-8" />
           <p className="text-scene-body text-foreground/70 italic">
-            Built for businesses that need stability, not experiments.
+            {t('sceneProof.quote')}
           </p>
           <div className="w-16 h-px bg-border mx-auto mt-8" />
         </motion.div>

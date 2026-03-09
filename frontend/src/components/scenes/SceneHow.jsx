@@ -1,26 +1,19 @@
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { AnimatedText, AnimatedLine } from '../effects/AnimatedText';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 const howSteps = [
   { 
-    text: "We define the system.",
-    description: "Clear architecture, documented processes",
     icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
   },
   { 
-    text: "We build what matters.",
-    description: "Focused development, measured progress",
     icon: "M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
   },
   { 
-    text: "We automate the flow.",
-    description: "Systematic efficiency, reduced friction",
     icon: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
   },
   { 
-    text: "We run and support it.",
-    description: "Ongoing operation, continuous improvement",
     icon: "M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"
   }
 ];
@@ -35,7 +28,7 @@ const HowStep = ({ step, index, total }) => {
   return (
     <motion.div
       ref={ref}
-      className="min-h-[55vh] sm:min-h-[60vh] flex items-center justify-center px-4 sm:px-6"
+      className="min-h-[45vh] sm:min-h-[52vh] md:min-h-[56vh] flex items-center justify-center px-4 sm:px-6"
     >
       <motion.div
         className="max-w-2xl w-full"
@@ -44,7 +37,7 @@ const HowStep = ({ step, index, total }) => {
         transition={{ duration: 0.5 }}
       >
         {/* Step indicator and line */}
-        <div className="flex items-center gap-6 mb-8">
+        <div className="flex items-center gap-3 sm:gap-6 mb-6 sm:mb-8">
           <motion.div
             className="w-12 h-12 rounded-lg bg-secondary border border-border flex items-center justify-center"
             initial={{ scale: 0.8, opacity: 0 }}
@@ -77,7 +70,7 @@ const HowStep = ({ step, index, total }) => {
           />
           
           <motion.span 
-            className="text-sm text-muted-foreground font-medium"
+            className="text-xs sm:text-sm text-muted-foreground font-medium whitespace-nowrap"
             initial={{ opacity: 0 }}
             animate={isInView ? { opacity: 1 } : {}}
             transition={{ delay: 0.3, duration: 0.3 }}
@@ -87,7 +80,7 @@ const HowStep = ({ step, index, total }) => {
         </div>
         
         {/* Main text */}
-        <motion.h2
+        <motion.h3
           className="text-scene-statement mb-4"
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -98,7 +91,7 @@ const HowStep = ({ step, index, total }) => {
           }}
         >
           {step.text}
-        </motion.h2>
+        </motion.h3>
         
         {/* Description */}
         <motion.p
@@ -134,27 +127,34 @@ const HowStep = ({ step, index, total }) => {
 };
 
 export const SceneHow = () => {
+  const { t } = useLanguage();
+  const localizedHowSteps = howSteps.map((step, index) => ({
+    ...step,
+    text: t(`sceneHow.steps.${index}.text`),
+    description: t(`sceneHow.steps.${index}.description`),
+  }));
+
   return (
     <section className="relative">
       {/* Section intro */}
-      <div className="min-h-[30vh] sm:min-h-[40vh] flex items-end justify-center pb-8 sm:pb-12 px-4 sm:px-6">
+      <div className="min-h-[20vh] sm:min-h-[28vh] md:min-h-[34vh] flex items-end justify-center pb-8 sm:pb-12 px-4 sm:px-6">
         <AnimatedText className="text-center">
           <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground block mb-4">
-            The approach
+            {t('sceneHow.intro')}
           </span>
           <h2 className="text-scene-body text-foreground/80">
-            How we bring order
+            {t('sceneHow.title')}
           </h2>
         </AnimatedText>
       </div>
       
       {/* How steps */}
-      {howSteps.map((step, index) => (
+      {localizedHowSteps.map((step, index) => (
         <HowStep 
           key={index} 
           step={step} 
           index={index}
-          total={howSteps.length}
+          total={localizedHowSteps.length}
         />
       ))}
     </section>

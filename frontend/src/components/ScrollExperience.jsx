@@ -3,7 +3,10 @@ import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'fram
 import { SceneEntry } from './scenes/SceneEntry';
 import { ScenePain } from './scenes/ScenePain';
 import { SceneHow } from './scenes/SceneHow';
+import { SceneAbout } from './scenes/SceneAbout';
+import { SceneCases } from './scenes/SceneCases';
 import { SceneProof } from './scenes/SceneProof';
+import { SceneFaq } from './scenes/SceneFaq';
 import { SceneDecision } from './scenes/SceneDecision';
 import { SceneAction } from './scenes/SceneAction';
 import { LivingSystemBackground } from './effects/LivingSystemBackground';
@@ -11,6 +14,7 @@ import { ProgressIndicator } from './effects/ProgressIndicator';
 import { Header } from './Header';
 
 export const ScrollExperience = () => {
+  const sceneCount = 9;
   const containerRef = useRef(null);
   const [currentScene, setCurrentScene] = useState(0);
   const lastScrollY = useRef(0);
@@ -76,18 +80,30 @@ export const ScrollExperience = () => {
   // Track current scene for progress indicator
   useEffect(() => {
     const unsubscribe = scrollYProgress.on('change', (value) => {
-      const sceneIndex = Math.floor(value * 6);
-      setCurrentScene(Math.min(sceneIndex, 5));
+      const sceneIndex = Math.floor(value * sceneCount);
+      setCurrentScene(Math.min(sceneIndex, sceneCount - 1));
     });
     return () => unsubscribe();
-  }, [scrollYProgress]);
+  }, [scrollYProgress, sceneCount]);
+
+  useEffect(() => {
+    const hash = window.location.hash?.replace("#", "");
+    if (!hash) return;
+    const target = document.getElementById(hash);
+    if (target) {
+      setTimeout(() => {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  }, []);
 
   return (
-    <div 
+    <main
       ref={containerRef}
-      className="relative bg-background min-h-[600vh]"
+      className="relative bg-background min-h-[760vh] sm:min-h-[820vh] md:min-h-[860vh] lg:min-h-[900vh]"
+      aria-label="AIONEX digital systems overview"
     >
-      {/* Header with COREX branding and navigation */}
+      {/* Header with AIONEX branding and navigation */}
       <Header />
       
       {/* Fixed background layer - THE LIVING SYSTEM */}
@@ -111,16 +127,37 @@ export const ScrollExperience = () => {
       
       {/* Scenes */}
       <div className="relative z-10">
-        <SceneEntry />
-        <ScenePain />
-        <SceneHow />
-        <SceneProof />
-        <SceneDecision />
-        <SceneAction />
+        <div id="explore">
+          <SceneEntry />
+        </div>
+        <div id="pain">
+          <ScenePain />
+        </div>
+        <div id="how">
+          <SceneHow />
+        </div>
+        <div id="about">
+          <SceneAbout />
+        </div>
+        <div id="cases">
+          <SceneCases />
+        </div>
+        <div id="proof">
+          <SceneProof />
+        </div>
+        <div id="faq">
+          <SceneFaq />
+        </div>
+        <div id="decision">
+          <SceneDecision />
+        </div>
+        <div id="contact">
+          <SceneAction />
+        </div>
       </div>
       
       {/* Subtle noise overlay for texture */}
       <div className="fixed inset-0 z-20 pointer-events-none noise-overlay" />
-    </div>
+    </main>
   );
 };
