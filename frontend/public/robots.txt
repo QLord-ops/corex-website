@@ -1,4 +1,12 @@
 User-agent: *
 Allow: /
+Allow: /leistungen
+Allow: /ueber-uns
+Allow: /kontakt
+Allow: /consultation
+Allow: /en
+Disallow: /api/
+Disallow: /admin/
+Disallow: /builder/
 
-Sitemap: https://aionex.de/sitemap.xml
+Sitemap: https://corexdigital.de/sitemap.xml

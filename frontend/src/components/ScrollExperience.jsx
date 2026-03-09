@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
 import { SceneEntry } from './scenes/SceneEntry';
 import { ScenePain } from './scenes/ScenePain';
@@ -32,16 +32,13 @@ export const ScrollExperience = () => {
     restDelta: 0.001
   });
   
-  // Smooth scroll velocity with decay
   const smoothScrollVelocity = useSpring(scrollVelocity, {
     stiffness: 100,
     damping: 30,
     restDelta: 0.001
   });
   
-  // Track scroll velocity
   useEffect(() => {
-    let rafId;
     let decayInterval;
     
     const handleScroll = () => {
@@ -50,19 +47,16 @@ export const ScrollExperience = () => {
       const deltaY = currentY - lastScrollY.current;
       const deltaTime = Math.max(currentTime - lastScrollTime.current, 1);
       
-      // Calculate velocity (pixels per millisecond, scaled)
-      const velocity = (deltaY / deltaTime) * 16; // Normalize to ~60fps
+      const velocity = (deltaY / deltaTime) * 16;
       scrollVelocity.set(velocity);
       
       lastScrollY.current = currentY;
       lastScrollTime.current = currentTime;
     };
     
-    // Decay velocity when not scrolling
     decayInterval = setInterval(() => {
       const timeSinceScroll = Date.now() - lastScrollTime.current;
       if (timeSinceScroll > 100) {
-        // Gradually decay velocity
         const currentVel = scrollVelocity.get();
         scrollVelocity.set(currentVel * 0.9);
       }
@@ -73,14 +67,12 @@ export const ScrollExperience = () => {
     return () => {
       window.removeEventListener('scroll', handleScroll);
       clearInterval(decayInterval);
-      if (rafId) cancelAnimationFrame(rafId);
     };
   }, [scrollVelocity]);
   
-  // Track current scene for progress indicator
   useEffect(() => {
     const unsubscribe = scrollYProgress.on('change', (value) => {
-      const sceneIndex = Math.floor(value * sceneCount);
+const sceneIndex = Math.floor(value * sceneCount);
       setCurrentScene(Math.min(sceneIndex, sceneCount - 1));
     });
     return () => unsubscribe();
@@ -100,20 +92,16 @@ export const ScrollExperience = () => {
   return (
     <main
       ref={containerRef}
-      className="relative bg-background min-h-[760vh] sm:min-h-[820vh] md:min-h-[860vh] lg:min-h-[900vh]"
+      className="relative bg-background min-h-[620vh] sm:min-h-[680vh] md:min-h-[720vh] lg:min-h-[760vh]"
       aria-label="AIONEX digital systems overview"
     >
-      {/* Header with AIONEX branding and navigation */}
-      <Header />
+<Header />
       
-      {/* Fixed background layer - THE LIVING SYSTEM */}
       <div className="fixed inset-0 z-0">
         <LivingSystemBackground 
           progress={smoothProgress} 
           scrollVelocity={smoothScrollVelocity}
         />
-        
-        {/* Subtle vignette overlay */}
         <div 
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -122,12 +110,10 @@ export const ScrollExperience = () => {
         />
       </div>
       
-      {/* Progress indicator */}
       <ProgressIndicator progress={smoothProgress} currentScene={currentScene} />
       
-      {/* Scenes */}
       <div className="relative z-10">
-        <div id="explore">
+<div id="explore">
           <SceneEntry />
         </div>
         <div id="pain">
@@ -136,27 +122,26 @@ export const ScrollExperience = () => {
         <div id="how">
           <SceneHow />
         </div>
-        <div id="about">
+        <div id="about" className="relative z-[100]">
           <SceneAbout />
         </div>
-        <div id="cases">
+        <div id="cases" className="relative z-[100]">
           <SceneCases />
         </div>
-        <div id="proof">
+        <div id="proof" className="relative z-[100]">
           <SceneProof />
         </div>
-        <div id="faq">
+        <div id="faq" className="relative z-[100]">
           <SceneFaq />
         </div>
-        <div id="decision">
+        <div id="decision" className="relative z-[100]">
           <SceneDecision />
         </div>
-        <div id="contact">
+        <div id="contact" className="relative z-[100]">
           <SceneAction />
         </div>
       </div>
       
-      {/* Subtle noise overlay for texture */}
       <div className="fixed inset-0 z-20 pointer-events-none noise-overlay" />
     </main>
   );

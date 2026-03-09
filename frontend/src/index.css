@@ -2,8 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import Space Grotesk for modern tech aesthetic */
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+/* Import Space Grotesk - optimized weights only, async load */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap');
 
 body {
     margin: 0;
@@ -17,9 +17,11 @@ code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
-/* Smooth scroll for entire document */
-html {
-    scroll-behavior: smooth;
+/* Smooth scroll - respect user preferences */
+@media (prefers-reduced-motion: no-preference) {
+    html {
+        scroll-behavior: smooth;
+    }
 }
 
 @layer base {
@@ -70,48 +72,37 @@ html {
         
         --radius: 0.375rem;
         
-        /* Custom tokens for scroll experience */
-        --scene-bg-start: 220 15% 4%;
-        --scene-bg-mid: 220 12% 6%;
-        --scene-bg-end: 220 10% 8%;
+        /* Typography colors */
+        --text-hero: 210 20% 95%;
+        --text-primary: 210 20% 92%;
+        --text-secondary: 210 15% 75%;
+        --text-muted: 210 10% 55%;
+        
+        /* Grid pattern */
+        --grid-line: 220 10% 12%;
+        --grid-dot: 220 10% 15%;
         
         /* Glow effects */
-        --glow-primary: 180 50% 50%;
-        --glow-subtle: 180 30% 35%;
-        
-        /* Grid system lines */
-        --grid-line: 220 15% 12%;
-        --grid-dot: 180 30% 30%;
-        
-        /* Text hierarchy */
-        --text-hero: 0 0% 100%;
-        --text-primary: 210 20% 92%;
-        --text-secondary: 210 10% 70%;
-        --text-muted: 210 8% 50%;
-        --text-subtle: 210 5% 35%;
-        
-        /* Transition tokens */
-        --transition-smooth: 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-        --transition-slow: 1.2s cubic-bezier(0.22, 1, 0.36, 1);
-        --transition-deliberate: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        --glow-primary: 180 35% 45%;
     }
 }
 
-/* Custom utility classes for the experience */
 @layer utilities {
-    /* Subtle noise texture overlay */
+    /* Subtle noise texture overlay - disabled on mobile for performance */
     .noise-overlay {
         position: relative;
     }
     
-    .noise-overlay::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-        opacity: 0.025;
-        pointer-events: none;
-        z-index: 1;
+    @media (min-width: 768px) {
+        .noise-overlay::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            opacity: 0.025;
+            pointer-events: none;
+            z-index: 1;
+        }
     }
     
     /* Grid pattern background */
@@ -128,9 +119,9 @@ html {
         background-size: 40px 40px;
     }
     
-    /* Scene typography */
+    /* Scene typography - optimized for mobile */
     .text-scene-hero {
-        font-size: clamp(2rem, 5vw, 4rem);
+        font-size: clamp(1.75rem, 4vw, 4rem);
         font-weight: 600;
         line-height: 1.1;
         letter-spacing: -0.02em;
@@ -138,7 +129,7 @@ html {
     }
     
     .text-scene-statement {
-        font-size: clamp(1.75rem, 4vw, 3.5rem);
+        font-size: clamp(1.5rem, 3.5vw, 3.5rem);
         font-weight: 500;
         line-height: 1.15;
         letter-spacing: -0.015em;
@@ -146,7 +137,7 @@ html {
     }
     
     .text-scene-body {
-        font-size: clamp(1.125rem, 2vw, 1.5rem);
+        font-size: clamp(1rem, 2vw, 1.5rem);
         font-weight: 400;
         line-height: 1.5;
         color: hsl(var(--text-secondary));
@@ -159,94 +150,35 @@ html {
         color: hsl(var(--text-muted));
     }
     
-    /* Glowing text effect - subtle */
+    /* Glowing text effect - subtle, disabled on mobile */
     .text-glow {
         text-shadow: 0 0 40px hsl(var(--glow-primary) / 0.3),
                      0 0 80px hsl(var(--glow-primary) / 0.15);
     }
     
-    /* Glow border */
-    .border-glow {
-        box-shadow: 0 0 20px hsl(var(--glow-subtle) / 0.2),
-                    inset 0 0 20px hsl(var(--glow-subtle) / 0.05);
+    @media (max-width: 767px) {
+        .text-glow {
+            text-shadow: none;
+        }
     }
     
-    /* Fade gradient mask */
-    .fade-bottom {
-        mask-image: linear-gradient(to bottom, black 70%, transparent);
-        -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent);
+    /* Optimized pulse animation - reduced on mobile */
+    .animate-pulse-subtle {
+        animation: pulse-subtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
     
-    .fade-edges {
-        mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
-        -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+    @keyframes pulse-subtle {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.6;
+        }
     }
     
-    /* Scene container */
-    .scene-container {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-        padding: 2rem;
-    }
-    
-    /* Stat highlight */
-    .stat-value {
-        font-size: clamp(2.5rem, 6vw, 5rem);
-        font-weight: 700;
-        letter-spacing: -0.03em;
-        color: hsl(var(--primary));
-    }
-    
-    .stat-label {
-        font-size: clamp(0.875rem, 1.2vw, 1rem);
-        font-weight: 400;
-        text-transform: uppercase;
-        letter-spacing: 0.15em;
-        color: hsl(var(--text-muted));
-    }
-}
-
-@layer base {
-    * {
-        @apply border-border;
-    }
-    body {
-        @apply bg-background text-foreground;
-    }
-}
-
-@layer base {
-    [data-debug-wrapper="true"] {
-        display: contents !important;
-    }
-
-    [data-debug-wrapper="true"] > * {
-        margin-left: inherit;
-        margin-right: inherit;
-        margin-top: inherit;
-        margin-bottom: inherit;
-        padding-left: inherit;
-        padding-right: inherit;
-        padding-top: inherit;
-        padding-bottom: inherit;
-        column-gap: inherit;
-        row-gap: inherit;
-        gap: inherit;
-        border-left-width: inherit;
-        border-right-width: inherit;
-        border-top-width: inherit;
-        border-bottom-width: inherit;
-        border-left-style: inherit;
-        border-right-style: inherit;
-        border-top-style: inherit;
-        border-bottom-style: inherit;
-        border-left-color: inherit;
-        border-right-color: inherit;
-        border-top-color: inherit;
-        border-bottom-color: inherit;
+    @media (prefers-reduced-motion: reduce) {
+        .animate-pulse-subtle {
+            animation: none;
+        }
     }
 }
