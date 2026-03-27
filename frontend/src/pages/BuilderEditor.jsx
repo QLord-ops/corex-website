@@ -41,6 +41,7 @@ export function BuilderEditor() {
 
   useEffect(() => {
     loadSite();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [siteId]);
 
   const addBlock = (type) => {

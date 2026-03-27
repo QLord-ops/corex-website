@@ -1,31 +1,7 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "build"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "https://api.corexdigital.de/api/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/frontend/build/$1"
-    }
-  ],
+  "buildCommand": "cd frontend && yarn install --ignore-engines && CI=false yarn build",
+  "outputDirectory": "frontend/build",
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ],
-  "env": {
-    "REACT_APP_API_URL": "https://api.corexdigital.de"
-  }
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }

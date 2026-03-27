@@ -47,6 +47,7 @@ export function BuilderDashboard() {
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const filteredSites = selectedClientId
