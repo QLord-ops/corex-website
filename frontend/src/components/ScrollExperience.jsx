@@ -15,7 +15,6 @@ const SceneDecision = lazy(() => import('./scenes/SceneDecision').then(m => ({ d
 const SceneAction = lazy(() => import('./scenes/SceneAction').then(m => ({ default: m.SceneAction })));
 
 const LivingSystemBackground = lazy(() => import('./effects/LivingSystemBackground').then(m => ({ default: m.LivingSystemBackground })));
-const LivingSystemBackgroundMobile = lazy(() => import('./effects/LivingSystemBackgroundMobile').then(m => ({ default: m.LivingSystemBackgroundMobile })));
 
 export const ScrollExperience = () => {
   const sceneCount = 9;
@@ -106,14 +105,10 @@ const sceneIndex = Math.floor(value * sceneCount);
       
       <div className="fixed inset-0 z-0">
         <Suspense fallback={<div className="absolute inset-0 bg-background" />}>
-          {mobile.current ? (
-            <LivingSystemBackgroundMobile progress={smoothProgress} />
-          ) : (
-            <LivingSystemBackground
-              progress={smoothProgress}
-              scrollVelocity={smoothScrollVelocity}
-            />
-          )}
+          <LivingSystemBackground
+            progress={smoothProgress}
+            scrollVelocity={smoothScrollVelocity}
+          />
         </Suspense>
         <div 
           className="absolute inset-0 pointer-events-none"
