@@ -1,17 +1,21 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, lazy, Suspense } from 'react';
 import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
+import { isMobile } from '@/utils/device';
 import { SceneEntry } from './scenes/SceneEntry';
 import { ScenePain } from './scenes/ScenePain';
 import { SceneHow } from './scenes/SceneHow';
-import { SceneAbout } from './scenes/SceneAbout';
-import { SceneCases } from './scenes/SceneCases';
-import { SceneProof } from './scenes/SceneProof';
-import { SceneFaq } from './scenes/SceneFaq';
-import { SceneDecision } from './scenes/SceneDecision';
-import { SceneAction } from './scenes/SceneAction';
-import { LivingSystemBackground } from './effects/LivingSystemBackground';
-import { ProgressIndicator } from './effects/ProgressIndicator';
 import { Header } from './Header';
+import { ProgressIndicator } from './effects/ProgressIndicator';
+
+const SceneAbout = lazy(() => import('./scenes/SceneAbout').then(m => ({ default: m.SceneAbout })));
+const SceneCases = lazy(() => import('./scenes/SceneCases').then(m => ({ default: m.SceneCases })));
+const SceneProof = lazy(() => import('./scenes/SceneProof').then(m => ({ default: m.SceneProof })));
+const SceneFaq = lazy(() => import('./scenes/SceneFaq').then(m => ({ default: m.SceneFaq })));
+const SceneDecision = lazy(() => import('./scenes/SceneDecision').then(m => ({ default: m.SceneDecision })));
+const SceneAction = lazy(() => import('./scenes/SceneAction').then(m => ({ default: m.SceneAction })));
+
+const LivingSystemBackground = lazy(() => import('./effects/LivingSystemBackground').then(m => ({ default: m.LivingSystemBackground })));
+const LivingSystemBackgroundMobile = lazy(() => import('./effects/LivingSystemBackgroundMobile').then(m => ({ default: m.LivingSystemBackgroundMobile })));
 
 export const ScrollExperience = () => {
   const sceneCount = 9;
@@ -20,6 +24,7 @@ export const ScrollExperience = () => {
   const lastScrollY = useRef(0);
   const lastScrollTime = useRef(Date.now());
   const scrollVelocity = useMotionValue(0);
+  const mobile = useRef(typeof window !== 'undefined' && isMobile());
   
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -27,19 +32,20 @@ export const ScrollExperience = () => {
   });
   
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 30,
-    damping: 30,
-    restDelta: 0.001
+    stiffness: mobile.current ? 50 : 30,
+    damping: mobile.current ? 40 : 30,
+    restDelta: mobile.current ? 0.005 : 0.001
   });
   
   const smoothScrollVelocity = useSpring(scrollVelocity, {
     stiffness: 100,
     damping: 30,
-    restDelta: 0.001
+    restDelta: mobile.current ? 0.01 : 0.001
   });
   
   useEffect(() => {
     let decayInterval;
+    const isMob = mobile.current;
     
     const handleScroll = () => {
       const currentY = window.scrollY;
@@ -54,13 +60,14 @@ export const ScrollExperience = () => {
       lastScrollTime.current = currentTime;
     };
     
+    const decayMs = isMob ? 150 : 50;
     decayInterval = setInterval(() => {
       const timeSinceScroll = Date.now() - lastScrollTime.current;
       if (timeSinceScroll > 100) {
         const currentVel = scrollVelocity.get();
-        scrollVelocity.set(currentVel * 0.9);
+        scrollVelocity.set(currentVel * (isMob ? 0.7 : 0.9));
       }
-    }, 50);
+    }, decayMs);
     
     window.addEventListener('scroll', handleScroll, { passive: true });
     
@@ -98,10 +105,16 @@ const sceneIndex = Math.floor(value * sceneCount);
 <Header />
       
       <div className="fixed inset-0 z-0">
-        <LivingSystemBackground 
-          progress={smoothProgress} 
-          scrollVelocity={smoothScrollVelocity}
-        />
+        <Suspense fallback={<div className="absolute inset-0 bg-background" />}>
+          {mobile.current ? (
+            <LivingSystemBackgroundMobile progress={smoothProgress} />
+          ) : (
+            <LivingSystemBackground
+              progress={smoothProgress}
+              scrollVelocity={smoothScrollVelocity}
+            />
+          )}
+        </Suspense>
         <div 
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -113,7 +126,7 @@ const sceneIndex = Math.floor(value * sceneCount);
       <ProgressIndicator progress={smoothProgress} currentScene={currentScene} />
       
       <div className="relative z-10">
-<div id="explore">
+        <div id="explore">
           <SceneEntry />
         </div>
         <div id="pain">
@@ -122,27 +135,29 @@ const sceneIndex = Math.floor(value * sceneCount);
         <div id="how">
           <SceneHow />
         </div>
-        <div id="about" className="relative z-[100]">
-          <SceneAbout />
-        </div>
-        <div id="cases" className="relative z-[100]">
-          <SceneCases />
-        </div>
-        <div id="proof" className="relative z-[100]">
-          <SceneProof />
-        </div>
-        <div id="faq" className="relative z-[100]">
-          <SceneFaq />
-        </div>
-        <div id="decision" className="relative z-[100]">
-          <SceneDecision />
-        </div>
-        <div id="contact" className="relative z-[100]">
-          <SceneAction />
-        </div>
+        <Suspense fallback={null}>
+          <div id="about" className="relative z-[100]">
+            <SceneAbout />
+          </div>
+          <div id="cases" className="relative z-[100]">
+            <SceneCases />
+          </div>
+          <div id="proof" className="relative z-[100]">
+            <SceneProof />
+          </div>
+          <div id="faq" className="relative z-[100]">
+            <SceneFaq />
+          </div>
+          <div id="decision" className="relative z-[100]">
+            <SceneDecision />
+          </div>
+          <div id="contact" className="relative z-[100]">
+            <SceneAction />
+          </div>
+        </Suspense>
       </div>
       
-      <div className="fixed inset-0 z-20 pointer-events-none noise-overlay" />
+      {!mobile.current && <div className="fixed inset-0 z-20 pointer-events-none noise-overlay" />}
     </main>
   );
 };

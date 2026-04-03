@@ -1,9 +1,11 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useMemo } from 'react';
 import { motion, useInView, useScroll, useTransform, useSpring } from 'framer-motion';
 import { AnimatedText } from '../effects/AnimatedText';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { shouldReduceAnimations } from '@/utils/device';
 
 const ease = [0.22, 1, 0.36, 1];
+const useReducedMotion = () => useMemo(() => typeof window !== 'undefined' && shouldReduceAnimations(), []);
 
 const stats = [
   { value: "+38%", num: 38, prefix: "+", suffix: "%", labelKey: "sceneProof.stats.0" },
@@ -30,50 +32,49 @@ const StatItem = ({ stat, index }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-10%" });
   const { t } = useLanguage();
+  const reduced = useReducedMotion();
   
+  if (reduced) {
+    return (
+      <div ref={ref} className="text-center px-2 sm:px-4">
+        <div className="w-1 h-1 rounded-full bg-primary/50 mx-auto mb-4" />
+        <div className="text-3xl sm:text-4xl md:text-5xl font-semibold text-foreground tracking-tight mb-2">
+          {stat.value}
+        </div>
+        <div className="w-8 h-px bg-primary/30 mx-auto mb-3" />
+        <div className="text-xs sm:text-sm text-muted-foreground leading-snug">{t(stat.labelKey)}</div>
+      </div>
+    );
+  }
+
   return (
     <motion.div
       ref={ref}
       className="text-center px-2 sm:px-4 xl:px-6 group"
       initial={{ opacity: 0, y: 40 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ 
-        duration: 0.9, 
-        delay: index * 0.18,
-        ease
-      }}
+      transition={{ duration: 0.9, delay: index * 0.18, ease }}
     >
-      {/* Glow dot above */}
       <motion.div
         className="w-1 h-1 rounded-full bg-primary/50 mx-auto mb-4 sm:mb-6"
         initial={{ scale: 0, opacity: 0 }}
         animate={isInView ? { scale: 1, opacity: 1 } : {}}
         transition={{ delay: index * 0.18 + 0.3, duration: 0.4 }}
       />
-
       <motion.div
         className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-semibold text-foreground tracking-tight mb-2 sm:mb-3 xl:mb-4"
         initial={{ scale: 0.7, opacity: 0 }}
         animate={isInView ? { scale: 1, opacity: 1 } : {}}
-        transition={{ 
-          duration: 0.7, 
-          delay: index * 0.18 + 0.1,
-          type: "spring",
-          stiffness: 120,
-          damping: 14
-        }}
+        transition={{ duration: 0.7, delay: index * 0.18 + 0.1, type: "spring", stiffness: 120, damping: 14 }}
       >
         <AnimatedNumber num={stat.num} prefix={stat.prefix} suffix={stat.suffix} fallback={stat.value} />
       </motion.div>
-
-      {/* Animated underline */}
       <motion.div
         className="w-8 sm:w-10 xl:w-12 h-px bg-primary/30 mx-auto mb-3 sm:mb-4"
         initial={{ scaleX: 0 }}
         animate={isInView ? { scaleX: 1 } : {}}
         transition={{ delay: index * 0.18 + 0.5, duration: 0.5, ease }}
       />
-
       <motion.div
         className="text-xs sm:text-sm xl:text-base text-muted-foreground leading-snug"
         initial={{ opacity: 0 }}

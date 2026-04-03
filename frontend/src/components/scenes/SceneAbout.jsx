@@ -1,9 +1,11 @@
 import { useLanguage } from '@/i18n/LanguageContext';
 import { AnimatedText } from '../effects/AnimatedText';
 import { motion, useInView, useSpring, useTransform } from 'framer-motion';
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useMemo } from 'react';
+import { shouldReduceAnimations } from '@/utils/device';
 
 const ease = [0.22, 1, 0.36, 1];
+const useReducedMotion = () => useMemo(() => typeof window !== 'undefined' && shouldReduceAnimations(), []);
 
 const Counter = ({ value, className }) => {
   const ref = useRef(null);
@@ -21,7 +23,9 @@ const Counter = ({ value, className }) => {
 
 const Reveal = ({ children, className = '', delay = 0 }) => {
   const ref = useRef(null);
+  const reduced = useReducedMotion();
   const inView = useInView(ref, { once: true, margin: '-8% 0px' });
+  if (reduced) return <div ref={ref} className={className}>{children}</div>;
   return (
     <motion.div ref={ref} initial={{ opacity: 0, y: 24 }} animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.7, delay, ease }} className={className}>
@@ -388,39 +392,51 @@ const Support = ({ t }) => {
 /* ═══════════════════════════════════════
    MAIN
    ═══════════════════════════════════════ */
-const SectionDivider = () => (
-  <motion.div
-    className="flex items-center justify-center gap-3 py-4"
-    initial={{ opacity: 0 }}
-    whileInView={{ opacity: 1 }}
-    viewport={{ once: true, margin: '-5%' }}
-    transition={{ duration: 0.6 }}
-  >
+const SectionDivider = () => {
+  const reduced = useReducedMotion();
+  if (reduced) {
+    return (
+      <div className="flex items-center justify-center gap-3 py-4">
+        <div className="h-px w-12 sm:w-20 bg-gradient-to-r from-transparent to-foreground/10" />
+        <div className="w-1 h-1 rounded-full bg-primary/40" />
+        <div className="h-px w-12 sm:w-20 bg-gradient-to-l from-transparent to-foreground/10" />
+      </div>
+    );
+  }
+  return (
     <motion.div
-      className="h-px w-12 sm:w-20 xl:w-28 bg-gradient-to-r from-transparent to-foreground/10"
-      initial={{ scaleX: 0 }}
-      whileInView={{ scaleX: 1 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, ease }}
-      style={{ transformOrigin: 'right' }}
-    />
-    <motion.div
-      className="w-1 h-1 rounded-full bg-primary/40"
-      initial={{ scale: 0 }}
-      whileInView={{ scale: 1 }}
-      viewport={{ once: true }}
-      transition={{ delay: 0.3, type: 'spring', stiffness: 200 }}
-    />
-    <motion.div
-      className="h-px w-12 sm:w-20 xl:w-28 bg-gradient-to-l from-transparent to-foreground/10"
-      initial={{ scaleX: 0 }}
-      whileInView={{ scaleX: 1 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, ease }}
-      style={{ transformOrigin: 'left' }}
-    />
-  </motion.div>
-);
+      className="flex items-center justify-center gap-3 py-4"
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true, margin: '-5%' }}
+      transition={{ duration: 0.6 }}
+    >
+      <motion.div
+        className="h-px w-12 sm:w-20 xl:w-28 bg-gradient-to-r from-transparent to-foreground/10"
+        initial={{ scaleX: 0 }}
+        whileInView={{ scaleX: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, ease }}
+        style={{ transformOrigin: 'right' }}
+      />
+      <motion.div
+        className="w-1 h-1 rounded-full bg-primary/40"
+        initial={{ scale: 0 }}
+        whileInView={{ scale: 1 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.3, type: 'spring', stiffness: 200 }}
+      />
+      <motion.div
+        className="h-px w-12 sm:w-20 xl:w-28 bg-gradient-to-l from-transparent to-foreground/10"
+        initial={{ scaleX: 0 }}
+        whileInView={{ scaleX: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, ease }}
+        style={{ transformOrigin: 'left' }}
+      />
+    </motion.div>
+  );
+};
 
 export const SceneAbout = () => {
   const { t } = useLanguage();

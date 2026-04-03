@@ -1,4 +1,3 @@
-// Lightweight mobile version - static gradient background
 import { useRef, useEffect } from 'react';
 
 export const LivingSystemBackgroundMobile = ({ progress }) => {
@@ -9,26 +8,29 @@ export const LivingSystemBackgroundMobile = ({ progress }) => {
     if (!canvas) return;
     
     const ctx = canvas.getContext('2d');
+    let animId;
+    let lastProgress = -1;
     
     const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5); // Lower DPR for mobile
+      const dpr = 1;
       canvas.width = window.innerWidth * dpr;
       canvas.height = window.innerHeight * dpr;
       canvas.style.width = window.innerWidth + 'px';
       canvas.style.height = window.innerHeight + 'px';
-      ctx.scale(dpr, dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      lastProgress = -1;
     };
     
-    const draw = () => {
+    const paint = () => {
+      const currentProgress = typeof progress.get === 'function' ? progress.get() : 0;
+      const rounded = Math.round(currentProgress * 200) / 200;
+      if (rounded === lastProgress) return;
+      lastProgress = rounded;
+
       const width = window.innerWidth;
       const height = window.innerHeight;
-      const currentProgress = typeof progress.get === 'function' ? progress.get() : 0;
       
-      // Simple color interpolation based on progress
-      let hue = 28;
-      let saturation = 18;
-      let lightness = 6;
-      
+      let hue = 28, saturation = 18, lightness = 6;
       if (currentProgress < 0.45) {
         hue = 20 - currentProgress * 15;
         saturation = 18 + currentProgress * 10;
@@ -41,7 +43,6 @@ export const LivingSystemBackgroundMobile = ({ progress }) => {
         saturation = 13 - (currentProgress - 0.65) * 10;
       }
       
-      // Simple gradient background
       const gradient = ctx.createRadialGradient(
         width * 0.5, height * 0.5, 0,
         width * 0.5, height * 0.5, Math.max(width, height) * 0.8
@@ -51,23 +52,22 @@ export const LivingSystemBackgroundMobile = ({ progress }) => {
       
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
-      
-      requestAnimationFrame(draw);
+    };
+    
+    const loop = () => {
+      paint();
+      animId = requestAnimationFrame(loop);
     };
     
     resize();
-    draw();
+    loop();
     
     window.addEventListener('resize', resize);
     return () => {
       window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animId);
     };
   }, [progress]);
   
-  return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0"
-    />
-  );
+  return <canvas ref={canvasRef} className="absolute inset-0" />;
 };
