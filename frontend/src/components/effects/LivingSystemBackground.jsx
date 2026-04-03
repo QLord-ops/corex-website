@@ -79,7 +79,7 @@ class SystemNode {
   }
   setOrderedPosition(x, y) { this.orderedX = x; this.orderedY = y; }
 
-  update(narrative, time, scrollVelocity, isPaused, pauseDuration) {
+  update(narrative, time, scrollVelocity, isPaused, pauseDuration, dt, isMob) {
     const { accumulatedStress, misalignment, stability, motionScale, pressure, reorganizing, reorganizeStrength = 0 } = narrative;
     const pauseCalm = isPaused ? Math.min(pauseDuration / 4000, 0.3) : 0;
     const effectiveMotion = motionScale * (1 - pauseCalm * 0.5);
@@ -87,7 +87,7 @@ class SystemNode {
     const stressDisplaceY = this.stressVector.y * accumulatedStress * 0.65;
     const misalignX = Math.cos(this.misalignAngle) * this.misalignMagnitude * misalignment;
     const misalignY = Math.sin(this.misalignAngle) * this.misalignMagnitude * misalignment;
-    const pressureTremor = pressure * 1.8 * effectiveMotion;
+    const pressureTremor = pressure * (isMob ? 0.8 : 1.8) * effectiveMotion;
     const tremorX = Math.sin(time * 1.5 + this.stressPhase * 3) * pressureTremor;
     const tremorY = Math.cos(time * 1.8 + this.stressPhase * 2) * pressureTremor;
     const breathScale = (1 - pressure * 0.5) * effectiveMotion;
@@ -96,8 +96,9 @@ class SystemNode {
     const driftScale = (1 - accumulatedStress * 0.6) * effectiveMotion;
     const driftX = Math.sin(time * 0.03 + this.driftPhase) * 3 * driftScale;
     const driftY = Math.cos(time * 0.025 + this.driftPhase) * 3 * driftScale;
+    const velFactor = isMob ? 0.03 : (0.12 + this.layer * 0.08);
     const velocityScale = 1 - stability * 0.5;
-    const velocityOffsetY = scrollVelocity * (0.12 + this.layer * 0.08) * velocityScale;
+    const velocityOffsetY = scrollVelocity * velFactor * velocityScale;
     const orderPull = stability + (reorganizing ? reorganizeStrength * 0.8 : 0);
     const stressPull = 1 - orderPull;
     const stressedX = this.baseX + stressDisplaceX + misalignX;
@@ -106,11 +107,13 @@ class SystemNode {
     const bY = stressedY * stressPull + this.orderedY * orderPull;
     this.targetX = bX + breathX + driftX + tremorX;
     this.targetY = bY + breathY + driftY + tremorY + velocityOffsetY;
-    const lerpSpeed = 0.008 + (reorganizing ? 0.015 : 0) + accumulatedStress * 0.005;
+    const baseLerp = isMob ? 0.06 : 0.008;
+    const lerpSpeed = (baseLerp + (reorganizing ? 0.015 : 0) + accumulatedStress * 0.005) * dt;
     const dx = this.targetX - this.x;
     const dy = this.targetY - this.y;
-    this.vx = this.vx * 0.85 + dx * lerpSpeed;
-    this.vy = this.vy * 0.85 + dy * lerpSpeed;
+    const damping = isMob ? 0.7 : 0.85;
+    this.vx = this.vx * damping + dx * lerpSpeed;
+    this.vy = this.vy * damping + dy * lerpSpeed;
     this.x += this.vx;
     this.y += this.vy;
 
@@ -396,7 +399,6 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
 
-      const parallaxFactors = [0.15, 0.35, 0.7];
       const lineSat = sat * 0.85;
       const lineLight = light * 0.9;
       const stabilityMod = narrative.stability * 0.2;
@@ -405,9 +407,7 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
       for (let layer = 0; layer < 3; layer++) {
         const nodes = system.layerNodes[layer];
         const particles = system.layerParticles[layer];
-        const parallaxY = currentVelocity * parallaxFactors[layer] * 0.5;
         ctx.save();
-        ctx.translate(0, parallaxY);
 
         const lineWidth = 0.5 + layer * 0.15 + narrative.stability * 0.2;
         ctx.lineWidth = lineWidth;
@@ -460,12 +460,19 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
       }
     };
 
-    const draw = () => {
+    let lastFrameTime = 0;
+
+    const draw = (timestamp) => {
       const system = systemRef.current;
       if (!system.initialized) {
+        lastFrameTime = timestamp;
         animationId = requestAnimationFrame(draw);
         return;
       }
+
+      const rawDt = lastFrameTime ? (timestamp - lastFrameTime) / 16.667 : 1;
+      const dt = Math.min(rawDt, 3);
+      lastFrameTime = timestamp;
 
       const currentProgress = typeof progress.get === 'function' ? progress.get() : 0;
       const currentVelocity = typeof scrollVelocity.get === 'function' ? scrollVelocity.get() : 0;
@@ -485,7 +492,7 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
       const pauseDuration = system.isPaused ? now - system.pauseStartTime : 0;
       const narrative = getNarrativeTension(currentProgress);
 
-      const colorLerpSpeed = 0.02;
+      const colorLerpSpeed = mobile ? 0.06 * dt : 0.02 * dt;
       system.currentHue += (narrative.hue - system.currentHue) * colorLerpSpeed;
       system.currentSaturation += (narrative.saturation - system.currentSaturation) * colorLerpSpeed;
       system.currentLightness += (narrative.lightness - system.currentLightness) * colorLerpSpeed;
@@ -493,19 +500,21 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
       system.currentBgSaturation += (narrative.bgSaturation - system.currentBgSaturation) * colorLerpSpeed;
       system.currentBgLightness += (narrative.bgLightness - system.currentBgLightness) * colorLerpSpeed;
 
-      system.time += 0.016;
+      system.time += 0.016 * dt;
+
+      const clampedVelocity = mobile ? Math.max(-4, Math.min(4, currentVelocity)) : currentVelocity;
 
       const nodes = system.nodes;
       for (let i = 0, l = nodes.length; i < l; i++) {
-        nodes[i].update(narrative, system.time, currentVelocity, system.isPaused, pauseDuration);
+        nodes[i].update(narrative, system.time, clampedVelocity, system.isPaused, pauseDuration, dt, mobile);
       }
       const particles = system.particles;
       for (let i = 0, l = particles.length; i < l; i++) {
-        particles[i].update(narrative, system.time, currentVelocity, system.isPaused);
+        particles[i].update(narrative, system.time, clampedVelocity, system.isPaused);
       }
 
       if (mobile) {
-        drawMobile(system, narrative, currentVelocity);
+        drawMobile(system, narrative, clampedVelocity);
       } else {
         drawDesktop(system, narrative, currentVelocity);
       }

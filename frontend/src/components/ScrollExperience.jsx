@@ -31,14 +31,14 @@ export const ScrollExperience = () => {
   });
   
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: mobile.current ? 50 : 30,
-    damping: mobile.current ? 40 : 30,
-    restDelta: mobile.current ? 0.005 : 0.001
+    stiffness: mobile.current ? 150 : 30,
+    damping: mobile.current ? 30 : 30,
+    restDelta: mobile.current ? 0.002 : 0.001
   });
   
   const smoothScrollVelocity = useSpring(scrollVelocity, {
-    stiffness: 100,
-    damping: 30,
+    stiffness: mobile.current ? 200 : 100,
+    damping: mobile.current ? 50 : 30,
     restDelta: mobile.current ? 0.01 : 0.001
   });
   
@@ -46,25 +46,28 @@ export const ScrollExperience = () => {
     let decayInterval;
     const isMob = mobile.current;
     
+    const maxVelocity = isMob ? 8 : 20;
+    
     const handleScroll = () => {
       const currentY = window.scrollY;
       const currentTime = Date.now();
       const deltaY = currentY - lastScrollY.current;
-      const deltaTime = Math.max(currentTime - lastScrollTime.current, 1);
+      const deltaTime = Math.max(currentTime - lastScrollTime.current, 4);
       
-      const velocity = (deltaY / deltaTime) * 16;
-      scrollVelocity.set(velocity);
+      const raw = (deltaY / deltaTime) * 16;
+      const clamped = Math.max(-maxVelocity, Math.min(maxVelocity, raw));
+      scrollVelocity.set(clamped);
       
       lastScrollY.current = currentY;
       lastScrollTime.current = currentTime;
     };
     
-    const decayMs = isMob ? 150 : 50;
+    const decayMs = isMob ? 60 : 50;
     decayInterval = setInterval(() => {
       const timeSinceScroll = Date.now() - lastScrollTime.current;
-      if (timeSinceScroll > 100) {
+      if (timeSinceScroll > 80) {
         const currentVel = scrollVelocity.get();
-        scrollVelocity.set(currentVel * (isMob ? 0.7 : 0.9));
+        scrollVelocity.set(currentVel * (isMob ? 0.6 : 0.9));
       }
     }, decayMs);
     
