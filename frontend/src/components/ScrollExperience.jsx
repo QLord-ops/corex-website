@@ -31,14 +31,14 @@ export const ScrollExperience = () => {
   });
   
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: mobile.current ? 150 : 30,
-    damping: mobile.current ? 30 : 30,
+    stiffness: mobile.current ? 80 : 30,
+    damping: mobile.current ? 20 : 30,
     restDelta: mobile.current ? 0.002 : 0.001
   });
   
   const smoothScrollVelocity = useSpring(scrollVelocity, {
-    stiffness: mobile.current ? 200 : 100,
-    damping: mobile.current ? 50 : 30,
+    stiffness: mobile.current ? 120 : 100,
+    damping: mobile.current ? 35 : 30,
     restDelta: mobile.current ? 0.01 : 0.001
   });
   

@@ -79,15 +79,14 @@ class SystemNode {
   }
   setOrderedPosition(x, y) { this.orderedX = x; this.orderedY = y; }
 
-  update(narrative, time, scrollVelocity, isPaused, pauseDuration, dt, isMob) {
+  update(narrative, time, dt, isMob) {
     const { accumulatedStress, misalignment, stability, motionScale, pressure, reorganizing, reorganizeStrength = 0 } = narrative;
-    const pauseCalm = isPaused ? Math.min(pauseDuration / 4000, 0.3) : 0;
-    const effectiveMotion = motionScale * (1 - pauseCalm * 0.5);
+    const effectiveMotion = motionScale;
     const stressDisplaceX = this.stressVector.x * accumulatedStress * 0.65;
     const stressDisplaceY = this.stressVector.y * accumulatedStress * 0.65;
     const misalignX = Math.cos(this.misalignAngle) * this.misalignMagnitude * misalignment;
     const misalignY = Math.sin(this.misalignAngle) * this.misalignMagnitude * misalignment;
-    const pressureTremor = pressure * (isMob ? 0.8 : 1.8) * effectiveMotion;
+    const pressureTremor = pressure * (isMob ? 0.6 : 1.8) * effectiveMotion;
     const tremorX = Math.sin(time * 1.5 + this.stressPhase * 3) * pressureTremor;
     const tremorY = Math.cos(time * 1.8 + this.stressPhase * 2) * pressureTremor;
     const breathScale = (1 - pressure * 0.5) * effectiveMotion;
@@ -96,9 +95,6 @@ class SystemNode {
     const driftScale = (1 - accumulatedStress * 0.6) * effectiveMotion;
     const driftX = Math.sin(time * 0.03 + this.driftPhase) * 3 * driftScale;
     const driftY = Math.cos(time * 0.025 + this.driftPhase) * 3 * driftScale;
-    const velFactor = isMob ? 0.03 : (0.12 + this.layer * 0.08);
-    const velocityScale = 1 - stability * 0.5;
-    const velocityOffsetY = scrollVelocity * velFactor * velocityScale;
     const orderPull = stability + (reorganizing ? reorganizeStrength * 0.8 : 0);
     const stressPull = 1 - orderPull;
     const stressedX = this.baseX + stressDisplaceX + misalignX;
@@ -106,12 +102,14 @@ class SystemNode {
     const bX = stressedX * stressPull + this.orderedX * orderPull;
     const bY = stressedY * stressPull + this.orderedY * orderPull;
     this.targetX = bX + breathX + driftX + tremorX;
-    this.targetY = bY + breathY + driftY + tremorY + velocityOffsetY;
-    const baseLerp = isMob ? 0.06 : 0.008;
-    const lerpSpeed = (baseLerp + (reorganizing ? 0.015 : 0) + accumulatedStress * 0.005) * dt;
+    this.targetY = bY + breathY + driftY + tremorY;
+
+    const lerpSpeed = isMob
+      ? (0.02 + (reorganizing ? 0.01 : 0)) * dt
+      : (0.008 + (reorganizing ? 0.015 : 0) + accumulatedStress * 0.005) * dt;
     const dx = this.targetX - this.x;
     const dy = this.targetY - this.y;
-    const damping = isMob ? 0.7 : 0.85;
+    const damping = isMob ? 0.92 : 0.85;
     this.vx = this.vx * damping + dx * lerpSpeed;
     this.vy = this.vy * damping + dy * lerpSpeed;
     this.x += this.vx;
@@ -139,7 +137,7 @@ class FlowParticle {
     this.desyncSensitivity = 0.5 + Math.random() * 0.5;
     this._x = 0; this._y = 0; this._cachedOpacity = 0;
   }
-  update(narrative, time, scrollVelocity, isPaused) {
+  update(narrative, time, dt) {
     const { desync, stability, motionScale, phase, pressure } = narrative;
     let speedMod = 1;
     if (phase === 'decision' || phase === 'action') speedMod = 0.3;
@@ -150,9 +148,8 @@ class FlowParticle {
       if (pressure > 0.5 && Math.sin(time * 2 + this.syncPhase * 5) > 0.7) speedMod *= 0.35;
     } else if (phase === 'how') speedMod = 0.5 + stability * 0.4;
     else speedMod = 0.6;
-    if (isPaused) speedMod *= 0.5;
     this.speed = this.baseSpeed * speedMod * motionScale;
-    this.progress += this.speed;
+    this.progress += this.speed * dt;
     if (this.progress > 1) {
       this.progress = 0;
       if (pressure > 0.3 && Math.random() < pressure * 0.35) this.progress = -0.08 * Math.random();
@@ -176,8 +173,8 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
   const canvasRef = useRef(null);
   const systemRef = useRef({
     nodes: [], particles: [], layerNodes: [[], [], []], layerParticles: [[], [], []],
-    connections: [], initialized: false, time: 0, isPaused: false,
-    pauseStartTime: 0, lastScrollTime: Date.now(),
+    initialized: false, time: 0,
+    lastScrollTime: Date.now(),
     currentHue: 28, currentSaturation: 35, currentLightness: 45,
     currentBgHue: 20, currentBgSaturation: 18, currentBgLightness: 6,
     width: 0, height: 0
@@ -189,15 +186,14 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
     system.particles = [];
     system.layerNodes = [[], [], []];
     system.layerParticles = [[], [], []];
-    system.connections = [];
     system.width = width;
     system.height = height;
 
     const mobile = isMobile();
     const layers = mobile ? [
-      { count: 15, connectionThreshold: 280 },
-      { count: 10, connectionThreshold: 250 },
-      { count: 6, connectionThreshold: 220 }
+      { count: 16, connectionThreshold: 280 },
+      { count: 11, connectionThreshold: 250 },
+      { count: 7, connectionThreshold: 230 }
     ] : [
       { count: 45, connectionThreshold: 230 },
       { count: 32, connectionThreshold: 200 },
@@ -234,7 +230,7 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
         system.nodes.push(node);
         system.layerNodes[layerIndex].push(node);
       }
-      const particleChance = mobile ? 0.25 : 0.6;
+      const particleChance = mobile ? 0.3 : 0.6;
       const reverseChance = mobile ? 0.2 : 0.45;
       layerNodes.forEach((node, i) => {
         layerNodes.forEach((other, j) => {
@@ -246,7 +242,6 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
             const prob = 1 - (distance / layerConfig.connectionThreshold) * 0.35;
             if (Math.random() < prob) {
               node.connections.push(other);
-              system.connections.push({ a: node, b: other, layer: layerIndex });
               if (Math.random() < particleChance) {
                 const p = new FlowParticle(node, other, layerIndex);
                 system.particles.push(p);
@@ -272,6 +267,7 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
     let animationId;
     const mobile = isMobile();
     const dpr = mobile ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+    const parallaxScale = mobile ? 0.12 : 1.0;
 
     const resize = () => {
       const w = window.innerWidth;
@@ -284,7 +280,7 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
       initSystem(w, h);
     };
 
-    const drawDesktop = (system, narrative, currentVelocity) => {
+    const paint = (system, narrative, velocity) => {
       const { width, height } = system;
       const hue = system.currentHue;
       const sat = system.currentSaturation;
@@ -294,11 +290,11 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
       ctx.fillStyle = `hsl(${system.currentBgHue}, ${system.currentBgSaturation}%, ${system.currentBgLightness}%)`;
       ctx.fillRect(0, 0, width, height);
 
-      const gradient = ctx.createRadialGradient(width * 0.5, height * 0.5, 0, width * 0.5, height * 0.5, Math.max(width, height) * 0.7);
-      gradient.addColorStop(0, `hsla(${system.currentBgHue}, ${system.currentBgSaturation + 5}%, ${system.currentBgLightness + 3}%, 0.4)`);
-      gradient.addColorStop(0.6, `hsla(${system.currentBgHue}, ${system.currentBgSaturation}%, ${system.currentBgLightness}%, 0.15)`);
-      gradient.addColorStop(1, 'transparent');
-      ctx.fillStyle = gradient;
+      const grad = ctx.createRadialGradient(width * 0.5, height * 0.5, 0, width * 0.5, height * 0.5, Math.max(width, height) * 0.7);
+      grad.addColorStop(0, `hsla(${system.currentBgHue}, ${system.currentBgSaturation + 5}%, ${system.currentBgLightness + 3}%, 0.4)`);
+      grad.addColorStop(0.6, `hsla(${system.currentBgHue}, ${system.currentBgSaturation}%, ${system.currentBgLightness}%, 0.15)`);
+      grad.addColorStop(1, 'transparent');
+      ctx.fillStyle = grad;
       ctx.fillRect(0, 0, width, height);
 
       const parallaxFactors = [0.2, 0.5, 1.0];
@@ -306,9 +302,9 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
       for (let layer = 0; layer < 3; layer++) {
         const nodes = system.layerNodes[layer];
         const particles = system.layerParticles[layer];
-        const parallaxY = currentVelocity * parallaxFactors[layer] * 0.8;
+        const parallaxY = velocity * parallaxFactors[layer] * 0.8 * parallaxScale;
         ctx.save();
-        ctx.translate(0, parallaxY);
+        if (Math.abs(parallaxY) > 0.1) ctx.translate(0, parallaxY);
 
         const lineSat = sat * 0.85;
         const lineLight = light * 0.9;
@@ -320,16 +316,25 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
             if (node.index < other.index) {
               const avgOpacity = (node._cachedOpacity + other._cachedOpacity) * 0.5;
               const lineOpacity = (avgOpacity + narrative.stability * 0.2) * narrative.lineOpacity * 0.8;
-              const lineGradient = ctx.createLinearGradient(node.x, node.y, other.x, other.y);
-              lineGradient.addColorStop(0, `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity * 0.5})`);
-              lineGradient.addColorStop(0.5, `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity})`);
-              lineGradient.addColorStop(1, `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity * 0.5})`);
-              ctx.beginPath();
-              ctx.strokeStyle = lineGradient;
-              ctx.lineWidth = 0.6 + layer * 0.2 + narrative.stability * 0.25;
-              ctx.moveTo(node.x, node.y);
-              ctx.lineTo(other.x, other.y);
-              ctx.stroke();
+              if (mobile) {
+                ctx.beginPath();
+                ctx.strokeStyle = `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity * 0.75})`;
+                ctx.lineWidth = 0.5 + layer * 0.15 + narrative.stability * 0.2;
+                ctx.moveTo(node.x, node.y);
+                ctx.lineTo(other.x, other.y);
+                ctx.stroke();
+              } else {
+                const lg = ctx.createLinearGradient(node.x, node.y, other.x, other.y);
+                lg.addColorStop(0, `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity * 0.5})`);
+                lg.addColorStop(0.5, `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity})`);
+                lg.addColorStop(1, `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity * 0.5})`);
+                ctx.beginPath();
+                ctx.strokeStyle = lg;
+                ctx.lineWidth = 0.6 + layer * 0.2 + narrative.stability * 0.25;
+                ctx.moveTo(node.x, node.y);
+                ctx.lineTo(other.x, other.y);
+                ctx.stroke();
+              }
             }
           }
         }
@@ -339,19 +344,21 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
         for (let pi = 0, pl = particles.length; pi < pl; pi++) {
           const particle = particles[pi];
           const opacity = particle._cachedOpacity;
-          if (opacity > 0.02) {
-            const glowSize = particle.size * (1.8 + glowIntensity);
-            const glowGrad = ctx.createRadialGradient(particle._x, particle._y, 0, particle._x, particle._y, glowSize);
-            glowGrad.addColorStop(0, `hsla(${hue}, ${particleSat}%, ${particleLight}%, ${opacity * 0.5})`);
-            glowGrad.addColorStop(0.6, `hsla(${hue}, ${particleSat}%, ${particleLight}%, ${opacity * 0.2})`);
-            glowGrad.addColorStop(1, 'transparent');
-            ctx.beginPath();
-            ctx.fillStyle = glowGrad;
-            ctx.arc(particle._x, particle._y, glowSize, 0, Math.PI * 2);
-            ctx.fill();
+          if (opacity > 0.03) {
+            if (!mobile) {
+              const gs = particle.size * (1.8 + glowIntensity);
+              const gg = ctx.createRadialGradient(particle._x, particle._y, 0, particle._x, particle._y, gs);
+              gg.addColorStop(0, `hsla(${hue}, ${particleSat}%, ${particleLight}%, ${opacity * 0.5})`);
+              gg.addColorStop(0.6, `hsla(${hue}, ${particleSat}%, ${particleLight}%, ${opacity * 0.2})`);
+              gg.addColorStop(1, 'transparent');
+              ctx.beginPath();
+              ctx.fillStyle = gg;
+              ctx.arc(particle._x, particle._y, gs, 0, Math.PI * 2);
+              ctx.fill();
+            }
             ctx.beginPath();
             ctx.fillStyle = `hsla(${hue}, ${particleSat}%, ${particleLight + 10}%, ${opacity})`;
-            ctx.arc(particle._x, particle._y, particle.size, 0, Math.PI * 2);
+            ctx.arc(particle._x, particle._y, particle.size * (mobile ? 1.2 : 1), 0, Math.PI * 2);
             ctx.fill();
           }
         }
@@ -360,100 +367,25 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
           const node = nodes[ni];
           const opacity = node._cachedOpacity;
           const size = node._cachedSize;
-          const glowSize = size * (2.2 + glowIntensity * 1.5);
-          const glowGradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, glowSize);
-          glowGradient.addColorStop(0, `hsla(${hue}, ${sat}%, ${light}%, ${opacity * 0.4})`);
-          glowGradient.addColorStop(0.5, `hsla(${hue}, ${sat}%, ${light}%, ${opacity * 0.15})`);
-          glowGradient.addColorStop(1, 'transparent');
+          const glowSize = size * (mobile ? 3.0 : (2.2 + glowIntensity * 1.5));
+          const ng = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, glowSize);
+          ng.addColorStop(0, `hsla(${hue}, ${sat}%, ${light}%, ${opacity * (mobile ? 0.35 : 0.4)})`);
+          ng.addColorStop(0.5, `hsla(${hue}, ${sat}%, ${light}%, ${opacity * 0.12})`);
+          ng.addColorStop(1, 'transparent');
           ctx.beginPath();
-          ctx.fillStyle = glowGradient;
+          ctx.fillStyle = ng;
           ctx.arc(node.x, node.y, glowSize, 0, Math.PI * 2);
           ctx.fill();
           ctx.beginPath();
           ctx.fillStyle = `hsla(${hue}, ${sat}%, ${light}%, ${opacity})`;
           ctx.arc(node.x, node.y, size, 0, Math.PI * 2);
           ctx.fill();
-          ctx.beginPath();
-          ctx.fillStyle = `hsla(${hue}, ${sat * 0.6}%, ${light + 22}%, ${opacity * 0.7})`;
-          ctx.arc(node.x, node.y, size * 0.35, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        ctx.restore();
-      }
-    };
-
-    const drawMobile = (system, narrative, currentVelocity) => {
-      const { width, height } = system;
-      const hue = system.currentHue;
-      const sat = system.currentSaturation;
-      const light = system.currentLightness;
-
-      ctx.fillStyle = `hsl(${system.currentBgHue}, ${system.currentBgSaturation}%, ${system.currentBgLightness}%)`;
-      ctx.fillRect(0, 0, width, height);
-
-      const gradient = ctx.createRadialGradient(width * 0.5, height * 0.5, 0, width * 0.5, height * 0.5, Math.max(width, height) * 0.7);
-      gradient.addColorStop(0, `hsla(${system.currentBgHue}, ${system.currentBgSaturation + 5}%, ${system.currentBgLightness + 3}%, 0.4)`);
-      gradient.addColorStop(0.6, `hsla(${system.currentBgHue}, ${system.currentBgSaturation}%, ${system.currentBgLightness}%, 0.15)`);
-      gradient.addColorStop(1, 'transparent');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, width, height);
-
-      const lineSat = sat * 0.85;
-      const lineLight = light * 0.9;
-      const stabilityMod = narrative.stability * 0.2;
-      const lineOpMod = narrative.lineOpacity * 0.8;
-
-      for (let layer = 0; layer < 3; layer++) {
-        const nodes = system.layerNodes[layer];
-        const particles = system.layerParticles[layer];
-        ctx.save();
-
-        const lineWidth = 0.5 + layer * 0.15 + narrative.stability * 0.2;
-        ctx.lineWidth = lineWidth;
-        for (let ci = 0, cl = nodes.length; ci < cl; ci++) {
-          const node = nodes[ci];
-          const conns = node.connections;
-          for (let cj = 0, cjl = conns.length; cj < cjl; cj++) {
-            const other = conns[cj];
-            if (node.index < other.index) {
-              const lineOpacity = ((node._cachedOpacity + other._cachedOpacity) * 0.5 + stabilityMod) * lineOpMod;
-              ctx.beginPath();
-              ctx.strokeStyle = `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity * 0.7})`;
-              ctx.moveTo(node.x, node.y);
-              ctx.lineTo(other.x, other.y);
-              ctx.stroke();
-            }
-          }
-        }
-
-        const particleLight = light * 1.25;
-        for (let pi = 0, pl = particles.length; pi < pl; pi++) {
-          const particle = particles[pi];
-          const opacity = particle._cachedOpacity;
-          if (opacity > 0.04) {
+          if (!mobile) {
             ctx.beginPath();
-            ctx.fillStyle = `hsla(${hue}, ${sat}%, ${particleLight + 10}%, ${opacity})`;
-            ctx.arc(particle._x, particle._y, particle.size, 0, Math.PI * 2);
+            ctx.fillStyle = `hsla(${hue}, ${sat * 0.6}%, ${light + 22}%, ${opacity * 0.7})`;
+            ctx.arc(node.x, node.y, size * 0.35, 0, Math.PI * 2);
             ctx.fill();
           }
-        }
-
-        for (let ni = 0, nl = nodes.length; ni < nl; ni++) {
-          const node = nodes[ni];
-          const opacity = node._cachedOpacity;
-          const size = node._cachedSize;
-
-          const glowSize = size * 2.5;
-          ctx.beginPath();
-          ctx.fillStyle = `hsla(${hue}, ${sat}%, ${light}%, ${opacity * 0.2})`;
-          ctx.arc(node.x, node.y, glowSize, 0, Math.PI * 2);
-          ctx.fill();
-
-          ctx.beginPath();
-          ctx.fillStyle = `hsla(${hue}, ${sat}%, ${light}%, ${opacity})`;
-          ctx.arc(node.x, node.y, size, 0, Math.PI * 2);
-          ctx.fill();
         }
 
         ctx.restore();
@@ -471,28 +403,15 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
       }
 
       const rawDt = lastFrameTime ? (timestamp - lastFrameTime) / 16.667 : 1;
-      const dt = Math.min(rawDt, 3);
+      const dt = Math.min(rawDt, 2.5);
       lastFrameTime = timestamp;
 
       const currentProgress = typeof progress.get === 'function' ? progress.get() : 0;
       const currentVelocity = typeof scrollVelocity.get === 'function' ? scrollVelocity.get() : 0;
-      const now = Date.now();
-      const isScrolling = Math.abs(currentVelocity) > 0.25;
 
-      if (isScrolling) {
-        system.lastScrollTime = now;
-        system.isPaused = false;
-      } else if (now - system.lastScrollTime > 600) {
-        if (!system.isPaused) {
-          system.isPaused = true;
-          system.pauseStartTime = now;
-        }
-      }
-
-      const pauseDuration = system.isPaused ? now - system.pauseStartTime : 0;
       const narrative = getNarrativeTension(currentProgress);
 
-      const colorLerpSpeed = mobile ? 0.06 * dt : 0.02 * dt;
+      const colorLerpSpeed = mobile ? 0.04 * dt : 0.02 * dt;
       system.currentHue += (narrative.hue - system.currentHue) * colorLerpSpeed;
       system.currentSaturation += (narrative.saturation - system.currentSaturation) * colorLerpSpeed;
       system.currentLightness += (narrative.lightness - system.currentLightness) * colorLerpSpeed;
@@ -502,22 +421,16 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
 
       system.time += 0.016 * dt;
 
-      const clampedVelocity = mobile ? Math.max(-4, Math.min(4, currentVelocity)) : currentVelocity;
-
       const nodes = system.nodes;
       for (let i = 0, l = nodes.length; i < l; i++) {
-        nodes[i].update(narrative, system.time, clampedVelocity, system.isPaused, pauseDuration, dt, mobile);
+        nodes[i].update(narrative, system.time, dt, mobile);
       }
       const particles = system.particles;
       for (let i = 0, l = particles.length; i < l; i++) {
-        particles[i].update(narrative, system.time, clampedVelocity, system.isPaused);
+        particles[i].update(narrative, system.time, dt);
       }
 
-      if (mobile) {
-        drawMobile(system, narrative, clampedVelocity);
-      } else {
-        drawDesktop(system, narrative, currentVelocity);
-      }
+      paint(system, narrative, currentVelocity);
 
       animationId = requestAnimationFrame(draw);
     };
