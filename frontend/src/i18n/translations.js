@@ -76,75 +76,59 @@ export const translations = {
     },
 
     sceneTrust: {
-      title: "Why companies trust us",
+      title: "Why companies trust AIONEX",
       description:
-        "We don't experiment with your business. Every system is planned, built, and supported with clear accountability.",
-      note: "One team. One process. Full transparency.",
+        "We build systems, not just websites. Every project is planned, built, and supported with clear responsibility.",
+      kpis: [
+        { value: "50+", label: "Projects delivered" },
+        { value: "2–6", label: "Weeks delivery" },
+        { value: "24h", label: "Support response" },
+      ],
     },
 
     sceneWhy: {
       title: "Why AIONEX",
       items: [
-        "Proven systems, not experiments",
-        "Clear deadlines & transparent process",
-        "Real support — during and after launch",
-        "One team for everything",
+        { title: "Proven systems", desc: "Battle-tested architecture and workflows — no experiments with your business." },
+        { title: "Clear deadlines", desc: "Transparent process with milestones, weekly updates, and zero surprises." },
+        { title: "Real support", desc: "Dedicated contact person during and long after launch — not a ticket queue." },
+        { title: "One team", desc: "Design, development, DevOps, and support — all under one roof." },
       ],
     },
 
     sceneProjectTransparency: {
       title: "Project transparency",
-      sizeLabel: "Project size",
-      sizeValue: "Small to enterprise",
-      durationLabel: "Duration",
-      durationValue: "2–6 weeks",
-      teamLabel: "Team",
-      teamValue: "Dedicated specialists",
+      items: [
+        { label: "Project size", value: "Small to enterprise" },
+        { label: "Duration", value: "2–6 weeks" },
+        { label: "Team", value: "Dedicated specialists" },
+      ],
     },
 
     sceneIndustries: {
       title: "Industries",
-      items: [
-        "Manufacturing",
-        "Logistics",
-        "E‑Commerce",
-        "Financial Services",
-        "Technology",
-      ],
+      items: ["Manufacturing", "Logistics", "E-Commerce", "Financial Services", "Technology"],
     },
 
     sceneTech: {
       title: "Technologies",
-      items: [
-        "React / Next.js",
-        "Node.js / Python",
-        "PostgreSQL / MongoDB",
-        "Docker / Kubernetes",
-        "AWS / GCP",
-        "REST / GraphQL",
-      ],
+      items: ["React / Next.js", "Node.js / Python", "PostgreSQL / MongoDB", "Docker / Kubernetes", "AWS / GCP", "REST / GraphQL"],
     },
 
     sceneProcess: {
       title: "Our process",
-      steps: [
-        "Discovery & analysis",
-        "Architecture & planning",
-        "Development & testing",
-        "Deployment & launch",
-        "Support & optimization",
-      ],
+      steps: ["Discovery", "Architecture", "Development", "Launch", "Support"],
     },
 
     sceneSupport: {
-      title: "Support",
-      modelsTitle: "Support models",
-      items: [
+      title: "Support & SLA",
+      features: [
         "24h response time",
         "Dedicated contact person",
         "Proactive monitoring",
         "Continuous improvement",
       ],
+      modelsTitle: "Support models",
       models: ["On-demand support", "Monthly retainer", "Full managed service"],
     },
 
@@ -362,80 +346,60 @@ export const translations = {
     },
 
     sceneTrust: {
-      title: "Warum Unternehmen uns vertrauen",
+      title: "Warum Unternehmen AIONEX vertrauen",
       description:
-        "Wir experimentieren nicht mit Ihrem Geschäft. Jedes System wird geplant, gebaut und mit klarer Verantwortung unterstützt.",
-      note: "Ein Team. Ein Prozess. Volle Transparenz.",
+        "Wir bauen Systeme, nicht nur Websites. Jedes Projekt wird geplant, gebaut und mit klarer Verantwortung unterstützt.",
+      kpis: [
+        { value: "50+", label: "Projekte geliefert" },
+        { value: "2–6", label: "Wochen Lieferzeit" },
+        { value: "24h", label: "Support-Antwort" },
+      ],
     },
 
     sceneWhy: {
       title: "Warum AIONEX",
       items: [
-        "Bewährte Systeme, keine Experimente",
-        "Klare Deadlines & transparenter Prozess",
-        "Echte Unterstützung — während und nach dem Launch",
-        "Ein Team für alles",
+        { title: "Bewährte Systeme", desc: "Kampferprobte Architektur und Workflows — keine Experimente mit Ihrem Geschäft." },
+        { title: "Klare Deadlines", desc: "Transparenter Prozess mit Meilensteinen, wöchentlichen Updates und null Überraschungen." },
+        { title: "Echte Unterstützung", desc: "Fester Ansprechpartner während und nach dem Launch — nicht nur ein Ticket-System." },
+        { title: "Ein Team", desc: "Design, Entwicklung, DevOps und Support — alles unter einem Dach." },
       ],
     },
 
     sceneProjectTransparency: {
       title: "Projekttransparenz",
-      sizeLabel: "Projektgröße",
-      sizeValue: "Klein bis Enterprise",
-      durationLabel: "Dauer",
-      durationValue: "2–6 Wochen",
-      teamLabel: "Team",
-      teamValue: "Dedizierte Spezialisten",
+      items: [
+        { label: "Projektgröße", value: "Klein bis Enterprise" },
+        { label: "Dauer", value: "2–6 Wochen" },
+        { label: "Team", value: "Dedizierte Spezialisten" },
+      ],
     },
 
     sceneIndustries: {
       title: "Branchen",
-      items: [
-        "Fertigung",
-        "Logistik",
-        "E-Commerce",
-        "Finanzdienstleistungen",
-        "Technologie",
-      ],
+      items: ["Fertigung", "Logistik", "E-Commerce", "Finanzdienstleistungen", "Technologie"],
     },
 
     sceneTech: {
       title: "Technologien",
-      items: [
-        "React / Next.js",
-        "Node.js / Python",
-        "PostgreSQL / MongoDB",
-        "Docker / Kubernetes",
-        "AWS / GCP",
-        "REST / GraphQL",
-      ],
+      items: ["React / Next.js", "Node.js / Python", "PostgreSQL / MongoDB", "Docker / Kubernetes", "AWS / GCP", "REST / GraphQL"],
     },
 
     sceneProcess: {
       title: "Unser Prozess",
-      steps: [
-        "Analyse & Discovery",
-        "Architektur & Planung",
-        "Entwicklung & Testing",
-        "Deployment & Launch",
-        "Support & Optimierung",
-      ],
+      steps: ["Discovery", "Architektur", "Entwicklung", "Launch", "Support"],
     },
 
     sceneSupport: {
-      title: "Support",
-      modelsTitle: "Support-Modelle",
-      items: [
+      title: "Support & SLA",
+      features: [
         "24h Antwortzeit",
         "Fester Ansprechpartner",
         "Proaktives Monitoring",
         "Kontinuierliche Verbesserung",
       ],
-      models: [
-        "On-Demand-Support",
-        "Monatlicher Retainer",
-        "Full Managed Service",
-      ],
+      modelsTitle: "Support-Modelle",
+      models: ["On-Demand-Support", "Monatlicher Retainer", "Full Managed Service"],
     },
 
     sceneCases: {
