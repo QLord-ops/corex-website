@@ -11,6 +11,8 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
 }
 
 code {
@@ -88,20 +90,23 @@ code {
 }
 
 @layer utilities {
-    /* Subtle noise texture overlay - disabled on mobile for performance */
     .noise-overlay {
         position: relative;
     }
-    
+
+    .noise-overlay::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        opacity: 0.022;
+        pointer-events: none;
+        z-index: 1;
+    }
+
     @media (min-width: 768px) {
         .noise-overlay::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
             opacity: 0.025;
-            pointer-events: none;
-            z-index: 1;
         }
     }
     
@@ -150,15 +155,15 @@ code {
         color: hsl(var(--text-muted));
     }
     
-    /* Glowing text effect - subtle, disabled on mobile */
     .text-glow {
-        text-shadow: 0 0 40px hsl(var(--glow-primary) / 0.3),
-                     0 0 80px hsl(var(--glow-primary) / 0.15);
+        text-shadow: 0 0 28px hsl(var(--glow-primary) / 0.22),
+                     0 0 56px hsl(var(--glow-primary) / 0.12);
     }
-    
-    @media (max-width: 767px) {
+
+    @media (min-width: 768px) {
         .text-glow {
-            text-shadow: none;
+            text-shadow: 0 0 40px hsl(var(--glow-primary) / 0.3),
+                         0 0 80px hsl(var(--glow-primary) / 0.15);
         }
     }
     

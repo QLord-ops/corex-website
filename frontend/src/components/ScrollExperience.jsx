@@ -101,7 +101,7 @@ const sceneIndex = Math.floor(value * sceneCount);
   return (
     <main
       ref={containerRef}
-      className="relative bg-background min-h-[620vh] sm:min-h-[680vh] md:min-h-[720vh] lg:min-h-[760vh]"
+      className="relative bg-background min-h-[720vh] sm:min-h-[720vh] md:min-h-[740vh] lg:min-h-[760vh] pb-[max(1rem,env(safe-area-inset-bottom))]"
       aria-label="AIONEX digital systems overview"
     >
 <Header />
@@ -155,7 +155,7 @@ const sceneIndex = Math.floor(value * sceneCount);
         </Suspense>
       </div>
       
-      {!mobile.current && <div className="fixed inset-0 z-20 pointer-events-none noise-overlay" />}
+      <div className="fixed inset-0 z-20 pointer-events-none noise-overlay" />
     </main>
   );
 };

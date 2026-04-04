@@ -1,5 +1,5 @@
 import { useRef, useEffect, useCallback } from 'react';
-import { isMobile } from '@/utils/device';
+import { prefersReducedMotion } from '@/utils/device';
 
 const getColorState = (progress) => {
   if (progress < 0.08) {
@@ -189,8 +189,8 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
     system.width = width;
     system.height = height;
 
-    const mobile = isMobile();
-    const layers = mobile ? [
+    const lite = prefersReducedMotion();
+    const layers = lite ? [
       { count: 16, connectionThreshold: 280 },
       { count: 11, connectionThreshold: 250 },
       { count: 7, connectionThreshold: 230 }
@@ -230,8 +230,8 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
         system.nodes.push(node);
         system.layerNodes[layerIndex].push(node);
       }
-      const particleChance = mobile ? 0.3 : 0.6;
-      const reverseChance = mobile ? 0.2 : 0.45;
+      const particleChance = lite ? 0.3 : 0.6;
+      const reverseChance = lite ? 0.2 : 0.45;
       layerNodes.forEach((node, i) => {
         layerNodes.forEach((other, j) => {
           if (i >= j) return;
@@ -265,11 +265,13 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
     if (!canvas) return;
     const ctx = canvas.getContext('2d', { alpha: false });
     let animationId;
-    const mobile = isMobile();
-    const dpr = mobile ? 1 : Math.min(window.devicePixelRatio || 1, 2);
-    const parallaxScale = mobile ? 0.12 : 1.0;
+    let dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let parallaxScale = 1;
 
     const resize = () => {
+      const lite = prefersReducedMotion();
+      dpr = lite ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+      parallaxScale = lite ? 0 : 1;
       const w = window.innerWidth;
       const h = window.innerHeight;
       canvas.width = w * dpr;
@@ -316,25 +318,16 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
             if (node.index < other.index) {
               const avgOpacity = (node._cachedOpacity + other._cachedOpacity) * 0.5;
               const lineOpacity = (avgOpacity + narrative.stability * 0.2) * narrative.lineOpacity * 0.8;
-              if (mobile) {
-                ctx.beginPath();
-                ctx.strokeStyle = `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity * 0.75})`;
-                ctx.lineWidth = 0.5 + layer * 0.15 + narrative.stability * 0.2;
-                ctx.moveTo(node.x, node.y);
-                ctx.lineTo(other.x, other.y);
-                ctx.stroke();
-              } else {
-                const lg = ctx.createLinearGradient(node.x, node.y, other.x, other.y);
-                lg.addColorStop(0, `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity * 0.5})`);
-                lg.addColorStop(0.5, `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity})`);
-                lg.addColorStop(1, `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity * 0.5})`);
-                ctx.beginPath();
-                ctx.strokeStyle = lg;
-                ctx.lineWidth = 0.6 + layer * 0.2 + narrative.stability * 0.25;
-                ctx.moveTo(node.x, node.y);
-                ctx.lineTo(other.x, other.y);
-                ctx.stroke();
-              }
+              const lg = ctx.createLinearGradient(node.x, node.y, other.x, other.y);
+              lg.addColorStop(0, `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity * 0.5})`);
+              lg.addColorStop(0.5, `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity})`);
+              lg.addColorStop(1, `hsla(${hue}, ${lineSat}%, ${lineLight}%, ${lineOpacity * 0.5})`);
+              ctx.beginPath();
+              ctx.strokeStyle = lg;
+              ctx.lineWidth = 0.6 + layer * 0.2 + narrative.stability * 0.25;
+              ctx.moveTo(node.x, node.y);
+              ctx.lineTo(other.x, other.y);
+              ctx.stroke();
             }
           }
         }
@@ -345,20 +338,18 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
           const particle = particles[pi];
           const opacity = particle._cachedOpacity;
           if (opacity > 0.03) {
-            if (!mobile) {
-              const gs = particle.size * (1.8 + glowIntensity);
-              const gg = ctx.createRadialGradient(particle._x, particle._y, 0, particle._x, particle._y, gs);
-              gg.addColorStop(0, `hsla(${hue}, ${particleSat}%, ${particleLight}%, ${opacity * 0.5})`);
-              gg.addColorStop(0.6, `hsla(${hue}, ${particleSat}%, ${particleLight}%, ${opacity * 0.2})`);
-              gg.addColorStop(1, 'transparent');
-              ctx.beginPath();
-              ctx.fillStyle = gg;
-              ctx.arc(particle._x, particle._y, gs, 0, Math.PI * 2);
-              ctx.fill();
-            }
+            const gs = particle.size * (1.8 + glowIntensity);
+            const gg = ctx.createRadialGradient(particle._x, particle._y, 0, particle._x, particle._y, gs);
+            gg.addColorStop(0, `hsla(${hue}, ${particleSat}%, ${particleLight}%, ${opacity * 0.5})`);
+            gg.addColorStop(0.6, `hsla(${hue}, ${particleSat}%, ${particleLight}%, ${opacity * 0.2})`);
+            gg.addColorStop(1, 'transparent');
+            ctx.beginPath();
+            ctx.fillStyle = gg;
+            ctx.arc(particle._x, particle._y, gs, 0, Math.PI * 2);
+            ctx.fill();
             ctx.beginPath();
             ctx.fillStyle = `hsla(${hue}, ${particleSat}%, ${particleLight + 10}%, ${opacity})`;
-            ctx.arc(particle._x, particle._y, particle.size * (mobile ? 1.2 : 1), 0, Math.PI * 2);
+            ctx.arc(particle._x, particle._y, particle.size, 0, Math.PI * 2);
             ctx.fill();
           }
         }
@@ -367,9 +358,9 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
           const node = nodes[ni];
           const opacity = node._cachedOpacity;
           const size = node._cachedSize;
-          const glowSize = size * (mobile ? 3.0 : (2.2 + glowIntensity * 1.5));
+          const glowSize = size * (2.2 + glowIntensity * 1.5);
           const ng = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, glowSize);
-          ng.addColorStop(0, `hsla(${hue}, ${sat}%, ${light}%, ${opacity * (mobile ? 0.35 : 0.4)})`);
+          ng.addColorStop(0, `hsla(${hue}, ${sat}%, ${light}%, ${opacity * 0.4})`);
           ng.addColorStop(0.5, `hsla(${hue}, ${sat}%, ${light}%, ${opacity * 0.12})`);
           ng.addColorStop(1, 'transparent');
           ctx.beginPath();
@@ -380,12 +371,10 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
           ctx.fillStyle = `hsla(${hue}, ${sat}%, ${light}%, ${opacity})`;
           ctx.arc(node.x, node.y, size, 0, Math.PI * 2);
           ctx.fill();
-          if (!mobile) {
-            ctx.beginPath();
-            ctx.fillStyle = `hsla(${hue}, ${sat * 0.6}%, ${light + 22}%, ${opacity * 0.7})`;
-            ctx.arc(node.x, node.y, size * 0.35, 0, Math.PI * 2);
-            ctx.fill();
-          }
+          ctx.beginPath();
+          ctx.fillStyle = `hsla(${hue}, ${sat * 0.6}%, ${light + 22}%, ${opacity * 0.7})`;
+          ctx.arc(node.x, node.y, size * 0.35, 0, Math.PI * 2);
+          ctx.fill();
         }
 
         ctx.restore();
@@ -411,7 +400,8 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
 
       const narrative = getNarrativeTension(currentProgress);
 
-      const colorLerpSpeed = mobile ? 0.04 * dt : 0.02 * dt;
+      const lite = prefersReducedMotion();
+      const colorLerpSpeed = lite ? 0.06 * dt : 0.02 * dt;
       system.currentHue += (narrative.hue - system.currentHue) * colorLerpSpeed;
       system.currentSaturation += (narrative.saturation - system.currentSaturation) * colorLerpSpeed;
       system.currentLightness += (narrative.lightness - system.currentLightness) * colorLerpSpeed;
@@ -423,7 +413,7 @@ export const LivingSystemBackground = ({ progress, scrollVelocity }) => {
 
       const nodes = system.nodes;
       for (let i = 0, l = nodes.length; i < l; i++) {
-        nodes[i].update(narrative, system.time, dt, mobile);
+        nodes[i].update(narrative, system.time, dt, lite);
       }
       const particles = system.particles;
       for (let i = 0, l = particles.length; i < l; i++) {

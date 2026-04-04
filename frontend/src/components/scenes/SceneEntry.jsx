@@ -32,7 +32,7 @@ export const SceneEntry = () => {
       className="min-h-[100dvh] flex items-center justify-center relative"
     >
       <motion.div 
-        className="max-w-4xl mx-auto px-4 sm:px-6 text-center pt-24 sm:pt-16 md:pt-8"
+        className="max-w-4xl mx-auto px-4 sm:px-6 text-center pt-[max(6rem,calc(env(safe-area-inset-top,0px)+4.5rem))] sm:pt-16 md:pt-8"
         style={{ opacity, y, scale }}
       >
         {/* Main headline */}

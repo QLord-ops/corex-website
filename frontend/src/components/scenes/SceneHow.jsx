@@ -37,7 +37,7 @@ const HowStep = ({ step, index, total }) => {
         transition={{ duration: 0.5 }}
       >
         {/* Step indicator and line */}
-        <div className="flex items-center gap-3 sm:gap-6 mb-6 sm:mb-8">
+        <div className="flex flex-col min-[380px]:flex-row min-[380px]:items-center gap-3 sm:gap-6 mb-6 sm:mb-8">
           <motion.div
             className="w-12 h-12 rounded-lg bg-secondary border border-border flex items-center justify-center"
             initial={{ scale: 0.8, opacity: 0 }}
@@ -62,7 +62,7 @@ const HowStep = ({ step, index, total }) => {
           </motion.div>
           
           <motion.div
-            className="flex-1 h-px bg-border"
+            className="w-full min-[380px]:w-auto min-[380px]:flex-1 h-px bg-border"
             initial={{ scaleX: 0 }}
             animate={isInView ? { scaleX: 1 } : {}}
             transition={{ duration: 0.5, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
@@ -70,7 +70,7 @@ const HowStep = ({ step, index, total }) => {
           />
           
           <motion.span 
-            className="text-xs sm:text-sm text-muted-foreground font-medium whitespace-nowrap"
+            className="text-xs sm:text-sm text-muted-foreground font-medium shrink-0"
             initial={{ opacity: 0 }}
             animate={isInView ? { opacity: 1 } : {}}
             transition={{ delay: 0.3, duration: 0.3 }}

@@ -66,12 +66,12 @@ export const Header = () => {
     <>
       {/* Fixed Header */}
       <header 
-        className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-500 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-500 pt-[env(safe-area-inset-top,0px)] ${
           isScrolled ? 'bg-background/80 backdrop-blur-sm' : 'bg-transparent'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 sm:h-20">
+          <div className="flex items-center justify-between min-h-14 sm:min-h-16 py-2 sm:py-0">
             {/* Company Logo */}
             <div className="flex-shrink-0">
               <button

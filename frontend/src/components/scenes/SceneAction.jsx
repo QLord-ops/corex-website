@@ -98,7 +98,7 @@ export const SceneAction = () => {
   return (
     <section 
       ref={sectionRef}
-      className="min-h-[90dvh] sm:min-h-[100dvh] flex items-center justify-center relative px-4 sm:px-6 py-10 sm:py-12 sm:pb-24"
+      className="min-h-[90dvh] sm:min-h-[100dvh] flex items-center justify-center relative px-4 sm:px-6 pt-10 sm:pt-12 pb-32 sm:pb-14 lg:pb-24"
     >
       <div className="max-w-xl w-full">
         {/* Headline */}

@@ -219,8 +219,8 @@ const Process = ({ t }) => {
   const inView = useInView(ref, { once: true, margin: '-8%' });
 
   return (
-    <div ref={ref} className="py-12 sm:py-20 lg:py-24 xl:py-28 px-5 sm:px-6 lg:px-8 xl:px-12">
-      <div className="max-w-sm sm:max-w-2xl lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto">
+    <div ref={ref} className="py-12 sm:py-20 lg:py-24 xl:py-28 px-4 sm:px-6 lg:px-8 xl:px-12">
+      <div className="max-w-sm sm:max-w-2xl lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto w-full min-w-0">
         <AnimatedText className="text-center mb-10 sm:mb-14 lg:mb-20 xl:mb-24">
           <span className="text-[10px] sm:text-xs xl:text-sm uppercase tracking-[0.3em] text-muted-foreground block mb-3 sm:mb-4">Workflow</span>
           <h2 className="text-scene-body text-foreground/80">{d.title}</h2>
@@ -289,31 +289,42 @@ const Process = ({ t }) => {
           ))}
         </div>
 
-        {/* Mobile vertical */}
-        <div className="sm:hidden">
-          <div className="relative pl-14">
-            <motion.div initial={{ scaleY: 0 }} animate={inView ? { scaleY: 1 } : {}}
-              transition={{ duration: 1, delay: 0.2, ease }}
-              className="absolute left-[18px] top-0 bottom-0 w-px bg-foreground/10 origin-top" />
-
+        {/* Mobile vertical — flex layout (no negative positioning; avoids horizontal clip) */}
+        <div className="sm:hidden w-full min-w-0">
+          <ul className="flex flex-col w-full" role="list">
             {steps.map((step, i) => (
-              <motion.div key={i}
-                initial={{ opacity: 0, x: -10 }}
-                animate={inView ? { opacity: 1, x: 0 } : {}}
-                transition={{ delay: 0.2 + i * 0.1 }}
-                className="relative py-3.5 group">
-
-                <div className="absolute left-[-20px] w-9 h-9 rounded-full border border-foreground/20 bg-background flex items-center justify-center
-                                group-hover:border-primary/60 transition-all duration-300">
-                  <span className="text-[11px] font-medium text-foreground/60 group-hover:text-primary transition-colors duration-300">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
+              <motion.li
+                key={i}
+                initial={{ opacity: 0, y: 8 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ delay: 0.15 + i * 0.08, duration: 0.45, ease }}
+                className="flex gap-3 min-w-0 group items-start"
+              >
+                <div className="flex flex-col items-center shrink-0 w-10 pt-0.5">
+                  <div
+                    className="w-9 h-9 rounded-full border border-foreground/20 bg-background flex items-center justify-center
+                               group-hover:border-primary/60 group-hover:bg-primary/[0.06] transition-all duration-300"
+                  >
+                    <span className="text-[11px] font-medium text-foreground/60 group-hover:text-primary transition-colors duration-300">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                  </div>
+                  {i < steps.length - 1 ? (
+                    <motion.div
+                      initial={{ scaleY: 0 }}
+                      animate={inView ? { scaleY: 1 } : {}}
+                      transition={{ duration: 0.4, delay: 0.18 + i * 0.08, ease }}
+                      className="w-px h-9 bg-foreground/10 origin-top shrink-0"
+                      aria-hidden
+                    />
+                  ) : null}
                 </div>
-
-                <p className="text-sm font-medium text-foreground">{step}</p>
-              </motion.div>
+                <p className="text-sm font-medium text-foreground min-w-0 flex-1 break-words leading-snug pr-1 pt-2">
+                  {step}
+                </p>
+              </motion.li>
             ))}
-          </div>
+          </ul>
         </div>
       </div>
     </div>
