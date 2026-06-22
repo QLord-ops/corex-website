@@ -1,7 +1,7 @@
 import { motion, useTransform } from 'framer-motion';
 import { useLanguage } from '@/i18n/LanguageContext';
 
-const SECTION_IDS = ['explore', 'pain', 'how', 'about', 'cases', 'proof', 'faq', 'decision', 'contact'];
+const SECTION_IDS = ['explore', 'services', 'pain', 'how', 'about', 'cases', 'proof', 'founder', 'faq', 'pricing', 'decision', 'contact'];
 
 export const ProgressIndicator = ({ progress, currentScene }) => {
   const progressHeight = useTransform(progress, [0, 1], ['0%', '100%']);
@@ -9,12 +9,15 @@ export const ProgressIndicator = ({ progress, currentScene }) => {
   const { t } = useLanguage();
   const sceneLabels = [
     t('progress.entry'),
+    t('progress.services'),
     t('progress.pain'),
     t('progress.how'),
     t('progress.about'),
     t('progress.cases'),
     t('progress.proof'),
+    t('progress.founder'),
     t('progress.faq'),
+    t('progress.pricing'),
     t('progress.decision'),
     t('progress.action'),
   ];

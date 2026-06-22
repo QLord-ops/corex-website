@@ -7,61 +7,63 @@ import { SceneHow } from './scenes/SceneHow';
 import { Header } from './Header';
 import { ProgressIndicator } from './effects/ProgressIndicator';
 
+const SceneWhatWeBuild = lazy(() => import('./scenes/SceneWhatWeBuild').then(m => ({ default: m.SceneWhatWeBuild })));
 const SceneAbout = lazy(() => import('./scenes/SceneAbout').then(m => ({ default: m.SceneAbout })));
 const SceneCases = lazy(() => import('./scenes/SceneCases').then(m => ({ default: m.SceneCases })));
 const SceneProof = lazy(() => import('./scenes/SceneProof').then(m => ({ default: m.SceneProof })));
+const SceneFounder = lazy(() => import('./scenes/SceneFounder').then(m => ({ default: m.SceneFounder })));
 const SceneFaq = lazy(() => import('./scenes/SceneFaq').then(m => ({ default: m.SceneFaq })));
+const ScenePricing = lazy(() => import('./scenes/ScenePricing').then(m => ({ default: m.ScenePricing })));
 const SceneDecision = lazy(() => import('./scenes/SceneDecision').then(m => ({ default: m.SceneDecision })));
 const SceneAction = lazy(() => import('./scenes/SceneAction').then(m => ({ default: m.SceneAction })));
 
 const LivingSystemBackground = lazy(() => import('./effects/LivingSystemBackground').then(m => ({ default: m.LivingSystemBackground })));
 
 export const ScrollExperience = () => {
-  const sceneCount = 9;
+  const sceneCount = 12;
   const containerRef = useRef(null);
   const [currentScene, setCurrentScene] = useState(0);
   const lastScrollY = useRef(0);
   const lastScrollTime = useRef(Date.now());
   const scrollVelocity = useMotionValue(0);
   const mobile = useRef(typeof window !== 'undefined' && isMobile());
-  
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"]
   });
-  
+
   const smoothProgress = useSpring(scrollYProgress, {
     stiffness: mobile.current ? 26 : 30,
     damping: mobile.current ? 42 : 30,
     restDelta: 0.001
   });
-  
+
   const smoothScrollVelocity = useSpring(scrollVelocity, {
     stiffness: mobile.current ? 55 : 100,
     damping: mobile.current ? 48 : 30,
     restDelta: mobile.current ? 0.02 : 0.001
   });
-  
+
   useEffect(() => {
     let decayInterval;
     const isMob = mobile.current;
-    
     const maxVelocity = isMob ? 8 : 20;
-    
+
     const handleScroll = () => {
       const currentY = window.scrollY;
       const currentTime = Date.now();
       const deltaY = currentY - lastScrollY.current;
       const deltaTime = Math.max(currentTime - lastScrollTime.current, 4);
-      
+
       const raw = (deltaY / deltaTime) * 16;
       const clamped = Math.max(-maxVelocity, Math.min(maxVelocity, raw));
       scrollVelocity.set(clamped);
-      
+
       lastScrollY.current = currentY;
       lastScrollTime.current = currentTime;
     };
-    
+
     const decayMs = isMob ? 60 : 50;
     decayInterval = setInterval(() => {
       const timeSinceScroll = Date.now() - lastScrollTime.current;
@@ -70,18 +72,18 @@ export const ScrollExperience = () => {
         scrollVelocity.set(currentVel * (isMob ? 0.6 : 0.9));
       }
     }, decayMs);
-    
+
     window.addEventListener('scroll', handleScroll, { passive: true });
-    
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
       clearInterval(decayInterval);
     };
   }, [scrollVelocity]);
-  
+
   useEffect(() => {
     const unsubscribe = scrollYProgress.on('change', (value) => {
-const sceneIndex = Math.floor(value * sceneCount);
+      const sceneIndex = Math.floor(value * sceneCount);
       setCurrentScene(Math.min(sceneIndex, sceneCount - 1));
     });
     return () => unsubscribe();
@@ -101,11 +103,11 @@ const sceneIndex = Math.floor(value * sceneCount);
   return (
     <main
       ref={containerRef}
-      className="relative bg-background min-h-[720vh] sm:min-h-[720vh] md:min-h-[740vh] lg:min-h-[760vh] pb-[max(1rem,env(safe-area-inset-bottom))]"
+      className="relative bg-background min-h-[960vh] sm:min-h-[960vh] md:min-h-[980vh] lg:min-h-[1000vh] pb-[max(1rem,env(safe-area-inset-bottom))]"
       aria-label="AIONEX digital systems overview"
     >
-<Header />
-      
+      <Header />
+
       <div className="fixed inset-0 z-0">
         <Suspense fallback={<div className="absolute inset-0 bg-background" />}>
           <LivingSystemBackground
@@ -113,20 +115,25 @@ const sceneIndex = Math.floor(value * sceneCount);
             scrollVelocity={smoothScrollVelocity}
           />
         </Suspense>
-        <div 
+        <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background: 'radial-gradient(ellipse at center, transparent 0%, transparent 50%, hsl(var(--background)) 100%)'
           }}
         />
       </div>
-      
+
       <ProgressIndicator progress={smoothProgress} currentScene={currentScene} />
-      
+
       <div className="relative z-10">
         <div id="explore">
           <SceneEntry />
         </div>
+        <Suspense fallback={null}>
+          <div id="services" className="relative z-[100]">
+            <SceneWhatWeBuild />
+          </div>
+        </Suspense>
         <div id="pain">
           <ScenePain />
         </div>
@@ -143,8 +150,14 @@ const sceneIndex = Math.floor(value * sceneCount);
           <div id="proof" className="relative z-[100]">
             <SceneProof />
           </div>
+          <div id="founder" className="relative z-[100]">
+            <SceneFounder />
+          </div>
           <div id="faq" className="relative z-[100]">
             <SceneFaq />
+          </div>
+          <div id="pricing" className="relative z-[100]">
+            <ScenePricing />
           </div>
           <div id="decision" className="relative z-[100]">
             <SceneDecision />
@@ -154,7 +167,7 @@ const sceneIndex = Math.floor(value * sceneCount);
           </div>
         </Suspense>
       </div>
-      
+
       <div className="fixed inset-0 z-20 pointer-events-none noise-overlay" />
     </main>
   );

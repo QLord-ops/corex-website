@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "./i18n/LanguageContext";
 import { DocumentHead } from "./components/DocumentHead";
@@ -7,6 +8,9 @@ import { BuilderEditor } from "./pages/BuilderEditor";
 import { ClientSiteView } from "./pages/ClientSiteView";
 import { ConsultationFlow } from "./pages/ConsultationFlow";
 import { ConsultationRedirect } from "./components/ConsultationRedirect";
+
+const ImpressumPage = lazy(() => import("./pages/ImpressumPage"));
+const DatenschutzPage = lazy(() => import("./pages/DatenschutzPage"));
 
 function MainSite() {
   return (
@@ -26,8 +30,14 @@ function App() {
         <Routes>
           <Route path="/" element={<MainSite />} />
           <Route path="/en" element={<MainSite />} />
-          <Route path="/en/*" element={<MainSite />} />
           <Route path="/de" element={<MainSite />} />
+          <Route path="/en/impressum" element={<Suspense fallback={null}><ImpressumPage /></Suspense>} />
+          <Route path="/de/impressum" element={<Suspense fallback={null}><ImpressumPage /></Suspense>} />
+          <Route path="/en/datenschutz" element={<Suspense fallback={null}><DatenschutzPage /></Suspense>} />
+          <Route path="/de/datenschutz" element={<Suspense fallback={null}><DatenschutzPage /></Suspense>} />
+          <Route path="/impressum" element={<Suspense fallback={null}><ImpressumPage /></Suspense>} />
+          <Route path="/datenschutz" element={<Suspense fallback={null}><DatenschutzPage /></Suspense>} />
+          <Route path="/en/*" element={<MainSite />} />
           <Route path="/de/*" element={<MainSite />} />
           <Route path="/builder" element={<BuilderDashboard />} />
           <Route path="/builder/sites/:siteId" element={<BuilderEditor />} />

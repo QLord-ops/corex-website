@@ -224,22 +224,12 @@ export const SceneAction = () => {
                 {loading ? t('sceneAction.loading') : t('sceneAction.cta')}
               </Button>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <a
-                  href={process.env.REACT_APP_BOOK_CALL_URL || 'mailto:aionex.info@gmail.com'}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center justify-center px-4 py-2 text-sm border border-border rounded-sm text-muted-foreground hover:text-foreground hover:border-border transition-colors"
-                >
-                  {t('sceneAction.secondaryCall')}
-                </a>
-                <a
-                  href="mailto:aionex.info@gmail.com"
-                  className="inline-flex items-center justify-center px-4 py-2 text-sm border border-border rounded-sm text-muted-foreground hover:text-foreground hover:border-border transition-colors"
-                >
-                  {t('sceneAction.secondaryEmail')}
-                </a>
-              </div>
+              <a
+                href="mailto:aionex.info@gmail.com"
+                className="w-full inline-flex items-center justify-center px-4 py-2 text-sm border border-border rounded-sm text-muted-foreground hover:text-foreground hover:border-border transition-colors"
+              >
+                {t('sceneAction.secondaryEmail')}
+              </a>
             </form>
           ) : (
             <motion.div
