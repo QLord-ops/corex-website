@@ -1,0 +1,7 @@
+1
+00:00:04,000 --> 00:00:10,000
+Antwort in Sekunden — 24/7
+
+2
+00:00:10,000 --> 00:00:11,000
+Lead erfasst. Automatisch.

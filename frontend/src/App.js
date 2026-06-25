@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "./i18n/LanguageContext";
 import { DocumentHead } from "./components/DocumentHead";
 import { ScrollExperience } from "./components/ScrollExperience";
+import { ChatWidget } from "./components/ChatWidget";
 import { BuilderDashboard } from "./pages/BuilderDashboard";
 import { BuilderEditor } from "./pages/BuilderEditor";
 import { ClientSiteView } from "./pages/ClientSiteView";
@@ -44,6 +45,7 @@ function App() {
           <Route path="/s/:slug" element={<ClientSiteView />} />
           <Route path="/consultation" element={<ConsultationRedirect />} />
         </Routes>
+        <ChatWidget />
       </BrowserRouter>
     </LanguageProvider>
   );

@@ -1,0 +1,8 @@
+{
+  "name": "ad-bot-15s",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "playwright": "^1.52.0"
+  }
+}

@@ -327,6 +327,27 @@ export const translations = {
       title: "AIONEX – AI Automation & Custom Software for Growing Businesses | Germany",
       description: "AIONEX builds AI automation, custom software, CRM systems, and business integrations for growing companies. Book a free project assessment.",
     },
+
+    chatWidget: {
+      title: "AIONEX AI Assistant",
+      launcherLabel: "AI Chat",
+      subtitle: "AI Bot · 24/7",
+      online: "Online now",
+      greeting: "Hi! I'm your AIONEX AI assistant — available 24/7. Ask about landing pages, automation, CRM, custom software, pricing, or anything else for your business. Ready for a call? I'll ask for your email and phone to confirm.",
+      placeholder: "Type your message...",
+      send: "Send",
+      poweredBy: "Powered by AIONEX AI",
+      starters: [
+        "What services do you offer?",
+        "I need a landing page",
+        "How much does a project cost?",
+        "Can you automate my business?",
+      ],
+      errorMessage: "Something went wrong. Please try again.",
+      wantSame: "Want this for your business?",
+      bookCall: "Book a free call",
+      confirmationSent: "Confirmation sent to your email.",
+    },
   },
 
   de: {
@@ -608,6 +629,27 @@ export const translations = {
     seo: {
       title: "AIONEX – KI-Automatisierung & individuelle Software für Unternehmen | Deutschland",
       description: "AIONEX entwickelt KI-Automatisierung, individuelle Software, CRM-Systeme und Business-Integrationen für wachsende Unternehmen. Kostenloses Projektgespräch buchen.",
+    },
+
+    chatWidget: {
+      title: "AIONEX KI-Assistent",
+      launcherLabel: "KI-Chat",
+      subtitle: "KI-Bot · 24/7",
+      online: "Jetzt online",
+      greeting: "Hallo! Ich bin Ihr AIONEX KI-Assistent — rund um die Uhr erreichbar. Fragen Sie zu Landingpages, Automatisierung, CRM, Software, Preisen oder allem für Ihr Unternehmen. Für ein Gespräch bitte E-Mail und Telefonnummer bereithalten.",
+      placeholder: "Nachricht eingeben...",
+      send: "Senden",
+      poweredBy: "Powered by AIONEX AI",
+      starters: [
+        "Welche Leistungen bieten Sie an?",
+        "Ich brauche eine Landingpage",
+        "Was kostet ein Projekt?",
+        "Können Sie mein Business automatisieren?",
+      ],
+      errorMessage: "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+      wantSame: "Wollen Sie das für Ihr Unternehmen?",
+      bookCall: "Kostenloses Gespräch buchen",
+      confirmationSent: "Bestätigung wurde an Ihre E-Mail gesendet.",
     },
   },
 };
